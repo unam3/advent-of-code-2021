@@ -17,3 +17,15 @@ spec = do
             $ shouldBe
                 (makeListOfTuples $ parseInput "21\n43\n0")
                 [(21,43),(43,0)]
+
+    describe "makeListOfTriplets" $ do
+        it "works"
+            $ shouldBe
+                (makeListOfTriplets $ parseInput "21\n43\n0\n31")
+                [(21,43, 0),(43,0,31)]
+
+    describe "sumTriplets" $ do
+        it "works"
+            $ shouldBe
+                (sumTriplets (43,0,31))
+                74
