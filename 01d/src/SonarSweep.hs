@@ -4,19 +4,18 @@ parseInput :: String -> [Int]
 parseInput = fmap read . lines
 
 makeListOfTuples :: [Int] -> [(Int, Int)]
-makeListOfTuples [] = []
-makeListOfTuples list =
+makeListOfTuples list@(_:_:_) =
     let listTail = tail list
     in zip list listTail
+makeListOfTuples _ = []
 
 
--- add guards for untotal tail
 makeListOfTriplets :: [Int] -> [(Int, Int, Int)]
-makeListOfTriplets [] = []
-makeListOfTriplets list = 
+makeListOfTriplets list@(_:_:_:_) = 
     let listTail = tail list
         listTail1 = tail listTail
     in zip3 list listTail listTail1
+makeListOfTriplets _ = []
 
 sumTriplets :: (Int, Int, Int) -> Int
 sumTriplets (m, m1, m2) = m + m1 + m2
