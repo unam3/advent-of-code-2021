@@ -9,5 +9,5 @@ spec = do
     describe "f" $ do
         it "works"
             $ shouldBe
-                (id 42)
+                42
                 42
