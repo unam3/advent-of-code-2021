@@ -1,0 +1,18 @@
+Map (Int, Int) (Int {- Value -}, Bool {- IsMarked -}
+
+Need to be able to check if any column or row of the border is marked
+
+How to go through board cells and get their values?
+
+---
+
+1) get draw number
+-- for all boards
+2) mark all numbers on the board that equals draw number
+    get it position and add to boardMap
+3) if we have a column or a row of marked numbers
+    3.1) board wins:
+        sum all unmarked numbers on the board
+            (if keys of map count > 12 can optimize)
+        multiply that sum by the number that was just called
+    3.2) otherwise repeat
