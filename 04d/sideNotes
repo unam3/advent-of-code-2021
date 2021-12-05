@@ -9,10 +9,15 @@ How to go through board cells and get their values?
 1) get draw number
 -- for all boards
 2) mark all numbers on the board that equals draw number
-    get it position and add to boardMap
+    get its position and add to boardMap
 3) if we have a column or a row of marked numbers
     3.1) board wins:
         sum all unmarked numbers on the board
             (if keys of map count > 12 can optimize)
-        multiply that sum by the number that was just called
+        multiply that sum by (1) the number that was just called
     3.2) otherwise repeat
+
+With (1) do it for all boards.
+
+
+Can we have several numbers on the board?

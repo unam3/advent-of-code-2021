@@ -1,6 +1,8 @@
 module GiantSquid where
 
-import Data.Map.Strict hiding (splitAt)
+import Data.List (elemIndex, foldl', nub)
+--import Data.Map.Strict (member)
+import Data.Map.Strict hiding (foldl', null, splitAt)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
 getEmptyStringPosition' ('\n':'\n':_) step = Just step
@@ -27,7 +29,7 @@ splitInput :: String -> [String]
 splitInput input =
     let splitResults = splitOnEmptyString input
     in case splitResults of
-        Just (left, right') -> [left] ++ (splitInput $ removeTwoNewlines right')
+        Just (left, right') -> left : splitInput (removeTwoNewlines right')
         _ -> [input]
 
 
@@ -42,45 +44,104 @@ parseNumbersToDraw =
 
 type BoardIntList = [[Int]]
 
+-- where [String] is boardList
 parseBoards :: [String] -> [BoardIntList]
-parseBoards boardList = fmap ((fmap $ fmap (read :: String -> Int)) . fmap words . lines) boardList
+parseBoards = fmap (fmap (fmap (read :: String -> Int) . words) . lines)
 
-type Coordinates = (Int, Int)
+type XYTuple = (Int, Int)
 -- to mark and check drawn numbers on the map
-type BoardMap = Map (Int, Int) Bool
+type MarkedCoordinatesMap = Map XYTuple Bool
 
-assignBoardMap :: BoardIntList -> (BoardIntList, BoardMap)
-assignBoardMap boardIntList = (boardIntList, empty)
+assignMarkedCoordinatesMap :: BoardIntList -> (BoardIntList, MarkedCoordinatesMap)
+assignMarkedCoordinatesMap boardIntList = (boardIntList, empty)
 
-parseInput :: [String] -> (NumbersToDraw, [(BoardIntList, BoardMap)])
+type BoardWithState = (BoardIntList, MarkedCoordinatesMap)
+
+parseInput :: [String] -> (NumbersToDraw, [BoardWithState])
 parseInput splittedInput =
-    let (numbersToDrawStringList, boardList) = splitAt 1 splittedInput
+    let (numbersToDrawStringList, boardStringList) = splitAt 1 splittedInput
         numbersToDraw = parseNumbersToDraw $ head numbersToDrawStringList
-        boards = parseBoards boardList
-    in (numbersToDraw, fmap assignBoardMap boards)
+        boardsList = parseBoards boardStringList
+    in (numbersToDraw, fmap assignMarkedCoordinatesMap boardsList)
 
--- [[3,15,0,2,22],[9,18,13,17,5],[19,8,7,25,23],[20,11,10,24,4],[14,21,16,12,6]]
--- fmap (zip [0..]) boardIntList
--- [[(0,3),(1,15),(2,0),(3,2),(4,22)],[(0,9),(1,18),(2,13),(3,17),(4,5)],[(0,19),(1,8),(2,7),(3,25),(4,23)],[(0,20),(1,11),(2,10),(3,24),(4,4)],[(0,14),(1,21),(2,16),(3,12),(4,6)]]
 
--- zip [0..] $ fmap (zip [0..]) boardIntList
--- [(0,[(0,3),(1,15),(2,0),(3,2),(4,22)]),(1,[(0,9),(1,18),(2,13),(3,17),(4,5)]),(2,[(0,19),(1,8),(2,7),(3,25),(4,23)]),(3,[(0,20),(1,11),(2,10),(3,24),(4,4)]),(4,[(0,14),(1,21),(2,16),(3,12),(4,6)])]
+findNumberCoordinatesInRow :: Int -> (Int, [Int]) -> Maybe XYTuple
+findNumberCoordinatesInRow numberToFind (rowNumber, row) =
+        fmap (\ colIndex -> (rowNumber, colIndex))
+            $ elemIndex numberToFind row
 
--- if zip on the fly will be slow — we can do all zipping in the parseInput once
-markNumber :: Int -> (BoardIntList, BoardMap) -> (BoardIntList, BoardMap)
-markNumber numberToMark (boardIntList, boardMap) =
-    foldl (\acc (lineNumber, tupleList) -> let ei = elemIndices 15 in if null ei then acc else ei ++ acc) [] $ zip [0..] $ fmap (zip [0..]) boardIntList
 
+findNumberCoordinatesInRows :: Int -> [(Int, [Int])] -> Maybe XYTuple
+findNumberCoordinatesInRows numberToFind (row : rows) = 
+    let result = findNumberCoordinatesInRow numberToFind row
+    in case result of
+        Nothing -> findNumberCoordinatesInRows numberToFind rows
+        jusCoordinates -> jusCoordinates
+findNumberCoordinatesInRows _ [] = Nothing
+
+-- possible implementations:
+--  - add to the number in position its coordinates (with zip [0..] to go through lines of boardIntList) and use findIndices
+--  - recourse and increment the counter by hands
+-- the simplest one is the first variant
+
+
+findNumberCoordinates :: Int -> BoardIntList -> Maybe XYTuple
+findNumberCoordinates numberToMark boardIntList =
+    let numberedRows =  zip [0..] boardIntList
+        coordinateToMark = findNumberCoordinatesInRows numberToMark numberedRows
+    in coordinateToMark
+
+markCoordinates :: MarkedCoordinatesMap -> XYTuple -> MarkedCoordinatesMap
+markCoordinates markedCoordinatesMap xy = insert xy True markedCoordinatesMap
+
+checkIfBoardWin :: MarkedCoordinatesMap -> XYTuple -> Bool
+checkIfBoardWin markedCoordinatesMap (rowNumber, columnNumber) =
+    let row = fmap (\coordinate -> (rowNumber, coordinate)) [0..4]
+        column = fmap (\coordinate -> (coordinate, columnNumber)) [0..4]
+        rowIsFullyMarked = all (`member` markedCoordinatesMap) row
+        columnIsFullyMarked = all (`member` markedCoordinatesMap) column
+    in rowIsFullyMarked || columnIsFullyMarked
+
+
+-- will draw all numbers or if board will win
+drawNumbers :: NumbersToDraw -> BoardWithState -> Maybe Int
+drawNumbers (drawnNumber : restNumbersToDraw) boardWithState@(boardIntList, markedCoordinatesMap) =
+    case findNumberCoordinates drawnNumber boardIntList of
+        Nothing -> drawNumbers restNumbersToDraw boardWithState
+        Just drawnNumberCoordinates ->
+            let updatedMarkedCoordinatesMap = markCoordinates markedCoordinatesMap drawnNumberCoordinates
+                isBoardWin = checkIfBoardWin updatedMarkedCoordinatesMap drawnNumberCoordinates
+            in if isBoardWin
+                then Just drawnNumber
+                else drawNumbers restNumbersToDraw (boardIntList, updatedMarkedCoordinatesMap)
+drawNumbers [] _ = Nothing
+
+
+isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
+isAnyRowOfBorderHaveSameNumberSeveralTimes = any ((/= 5) . length . nub)
+
+isBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
+isBorderHaveSameNumberSeveralTimes = (/= 25) . length . nub . concat
 
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
+        -- . any isBorderHaveSameNumberSeveralTimes
+        -- -- [BoardIntList]
+        -- . fmap fst
+        -- -- [BoardWithState]
+        -- . snd
         . parseInput
         . splitInput
 
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
+        -- . any isBorderHaveSameNumberSeveralTimes
+        -- -- [BoardIntList]
+        -- . fmap fst
+        -- -- [BoardWithState]
+        -- . snd
         . parseInput
         . splitInput
 
