@@ -1,8 +1,8 @@
 module GiantSquid where
 
-import Data.List (elemIndex, nub)
+import Data.List (elemIndex, foldl', nub)
 --import Data.Map.Strict (member)
-import Data.Map.Strict hiding (null, splitAt)
+import Data.Map.Strict hiding (null, foldl', splitAt)
 import Prelude hiding (lookup)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
@@ -136,6 +136,29 @@ drawNumberUntilPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (Board
 drawNumberUntilPossibleWin (numbersToDraw, boardWithStateMap) =
     drawNumberUntilPossibleWin' numbersToDraw boardWithStateMap 0
 
+addNumberIfUnmarled :: MarkedCoordinatesMap -> Int -> Int -> (Int, Int) -> Int
+addNumberIfUnmarled markedCoordinatesMap y acc (x, number) =
+    case lookup (y, x) markedCoordinatesMap of
+        Just _ -> acc
+        Nothing -> number + acc
+
+sumRow :: MarkedCoordinatesMap -> Int -> (Int, [Int]) -> Int
+sumRow markedCoordinatesMap acc (y, row) = 
+    let rowUnmarkedNumbersSum = foldl' (addNumberIfUnmarled markedCoordinatesMap y) 0
+            -- [(x, v),… (xn, vn)]
+            $ zip [0..] row
+    in rowUnmarkedNumbersSum + acc
+
+
+sumUnmarkedNumbers :: BoardWithState -> Int
+sumUnmarkedNumbers (boardIntList, markedCoordinatesMap) =
+    foldl' (sumRow markedCoordinatesMap) 0
+        -- [(y, row),… (yn, rown)]
+        $ zip [0..] boardIntList
+
+calculateWinningScore :: BoardWithState -> Int -> Int
+calculateWinningScore boardWithState drawnNumber = sumUnmarkedNumbers boardWithState * drawnNumber
+
 
 isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
 isAnyRowOfBorderHaveSameNumberSeveralTimes = any ((/= 5) . length . nub)
@@ -147,6 +170,12 @@ isBorderHaveSameNumberSeveralTimes = (/= 25) . length . nub . concat
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
+        . (\ maybeBoardWithStateAndDrawnNumber ->
+            case maybeBoardWithStateAndDrawnNumber of
+                Just (boardWithState, drawnNumber) ->
+                    calculateWinningScore boardWithState drawnNumber
+                Nothing -> error "no winning board"
+        )
         . drawNumberUntilPossibleWin
         . parseInput
         . splitInput
@@ -154,11 +183,13 @@ solveTest = readFile "testInput"
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
-        -- . any isBorderHaveSameNumberSeveralTimes
-        -- -- [BoardIntList]
-        -- . fmap fst
-        -- -- [BoardWithState]
-        -- . snd
+        . (\ maybeBoardWithStateAndDrawnNumber ->
+            case maybeBoardWithStateAndDrawnNumber of
+                Just (boardWithState, drawnNumber) ->
+                    calculateWinningScore boardWithState drawnNumber
+                Nothing -> error "no winning board"
+        )
+        . drawNumberUntilPossibleWin
         . parseInput
         . splitInput
 
