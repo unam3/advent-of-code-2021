@@ -1,0 +1,11 @@
+- draw numbers across all boards until  the win of the last board.
+    possible implementations:
+        - go through all numbers to draw and collect list of winning boards; take head of that list
+        - count number of boards that win and return boards that wins at *number of boards* time
+            drawNumberUntilFirstPossibleWin then remove board that wins until we get 
+
+Apparently not all boards wins, so we need no to take the last remained board as last winning one.
+So we could say only when we get through the all of the number to draw which board wins last.
+
+Why drawNumberUntilLastPossibleWin' with boardWithStateMap' missing some marked numbers coordinates from the boardWithStateMap and otherwise?
+
