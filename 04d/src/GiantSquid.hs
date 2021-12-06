@@ -1,8 +1,9 @@
 module GiantSquid where
 
-import Data.List (elemIndex, foldl', nub)
+import Data.List (elemIndex, nub)
 --import Data.Map.Strict (member)
-import Data.Map.Strict hiding (foldl', null, splitAt)
+import Data.Map.Strict hiding (null, splitAt)
+import Prelude hiding (lookup)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
 getEmptyStringPosition' ('\n':'\n':_) step = Just step
@@ -57,12 +58,12 @@ assignMarkedCoordinatesMap boardIntList = (boardIntList, empty)
 
 type BoardWithState = (BoardIntList, MarkedCoordinatesMap)
 
-parseInput :: [String] -> (NumbersToDraw, [BoardWithState])
+parseInput :: [String] -> (NumbersToDraw, BoardWithStateMap)
 parseInput splittedInput =
     let (numbersToDrawStringList, boardStringList) = splitAt 1 splittedInput
         numbersToDraw = parseNumbersToDraw $ head numbersToDrawStringList
         boardsList = parseBoards boardStringList
-    in (numbersToDraw, fmap assignMarkedCoordinatesMap boardsList)
+    in (numbersToDraw, makeBoardWithStateMap $ fmap assignMarkedCoordinatesMap boardsList)
 
 
 findNumberCoordinatesInRow :: Int -> (Int, [Int]) -> Maybe XYTuple
@@ -103,17 +104,37 @@ checkIfBoardWin markedCoordinatesMap (rowNumber, columnNumber) =
     in rowIsFullyMarked || columnIsFullyMarked
 
 
-drawNumberUntilPossibleWin :: NumbersToDraw -> BoardWithState -> Maybe Int
-drawNumberUntilPossibleWin (drawnNumber : restNumbersToDraw) boardWithState@(boardIntList, markedCoordinatesMap) =
-    case findNumberCoordinates drawnNumber boardIntList of
-        Nothing -> drawNumberUntilPossibleWin restNumbersToDraw boardWithState
-        Just drawnNumberCoordinates ->
-            let updatedMarkedCoordinatesMap = markCoordinates markedCoordinatesMap drawnNumberCoordinates
-                isBoardWin = checkIfBoardWin updatedMarkedCoordinatesMap drawnNumberCoordinates
-            in if isBoardWin
-                then Just drawnNumber
-                else drawNumberUntilPossibleWin restNumbersToDraw (boardIntList, updatedMarkedCoordinatesMap)
-drawNumberUntilPossibleWin [] _ = Nothing
+type BoardWithStateMap = Map Int BoardWithState
+
+makeBoardWithStateMap :: [BoardWithState] -> BoardWithStateMap
+makeBoardWithStateMap = fromList . zip [0..]
+
+drawNumberUntilPossibleWin' :: NumbersToDraw -> BoardWithStateMap -> Int -> Maybe (BoardWithState, Int)
+drawNumberUntilPossibleWin' numbersToDraw@(drawnNumber : restNumbersToDraw) boardWithStateMap boardWithStateIndex =
+    case lookup boardWithStateIndex boardWithStateMap of
+        Just (boardIntList, markedCoordinatesMap) ->
+            case findNumberCoordinates drawnNumber boardIntList of
+                Nothing -> drawNumberUntilPossibleWin' numbersToDraw boardWithStateMap (boardWithStateIndex + 1)
+                Just drawnNumberCoordinates ->
+                    let updatedMarkedCoordinatesMap = markCoordinates markedCoordinatesMap drawnNumberCoordinates
+                        isBoardWin = checkIfBoardWin updatedMarkedCoordinatesMap drawnNumberCoordinates
+                    in if isBoardWin
+                        then Just ((boardIntList, updatedMarkedCoordinatesMap), drawnNumber)
+                        else let updatedBoardWithStateMap =
+                                    insert
+                                        boardWithStateIndex
+                                        (boardIntList, updatedMarkedCoordinatesMap)
+                                        boardWithStateMap
+                        in drawNumberUntilPossibleWin'
+                                numbersToDraw
+                                updatedBoardWithStateMap
+                                (boardWithStateIndex + 1)
+        Nothing -> drawNumberUntilPossibleWin' restNumbersToDraw boardWithStateMap 0
+drawNumberUntilPossibleWin' [] _ _ = Nothing
+
+drawNumberUntilPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (BoardWithState, Int)
+drawNumberUntilPossibleWin (numbersToDraw, boardWithStateMap) =
+    drawNumberUntilPossibleWin' numbersToDraw boardWithStateMap 0
 
 
 isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
@@ -122,14 +143,11 @@ isAnyRowOfBorderHaveSameNumberSeveralTimes = any ((/= 5) . length . nub)
 isBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
 isBorderHaveSameNumberSeveralTimes = (/= 25) . length . nub . concat
 
+
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
-        -- . any isBorderHaveSameNumberSeveralTimes
-        -- -- [BoardIntList]
-        -- . fmap fst
-        -- -- [BoardWithState]
-        -- . snd
+        . drawNumberUntilPossibleWin
         . parseInput
         . splitInput
 
