@@ -1,10 +1,3 @@
-Map (Int, Int) (Int {- Value -}, Bool {- IsMarked -}
-
-Need to be able to check if any column or row of the border is marked
-
-How to go through board cells and get their values?
-
----
 
 1) get draw number
 -- for all boards
@@ -20,4 +13,16 @@ How to go through board cells and get their values?
 With (1) do it for all boards.
 
 
-Can we have several numbers on the board?
++ Can we have several numbers on the board?
+No. Says next code:
+
+solve :: IO ()
+solve = readFile "input.txt"
+    >>= print
+        . any isBorderHaveSameNumberSeveralTimes
+        -- [BoardIntList]
+        . fmap fst
+        -- [BoardWithState]
+        . snd
+        . parseInput
+        . splitInput

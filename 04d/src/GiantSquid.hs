@@ -103,18 +103,17 @@ checkIfBoardWin markedCoordinatesMap (rowNumber, columnNumber) =
     in rowIsFullyMarked || columnIsFullyMarked
 
 
--- will draw all numbers or if board will win
-drawNumbers :: NumbersToDraw -> BoardWithState -> Maybe Int
-drawNumbers (drawnNumber : restNumbersToDraw) boardWithState@(boardIntList, markedCoordinatesMap) =
+drawNumberUntilPossibleWin :: NumbersToDraw -> BoardWithState -> Maybe Int
+drawNumberUntilPossibleWin (drawnNumber : restNumbersToDraw) boardWithState@(boardIntList, markedCoordinatesMap) =
     case findNumberCoordinates drawnNumber boardIntList of
-        Nothing -> drawNumbers restNumbersToDraw boardWithState
+        Nothing -> drawNumberUntilPossibleWin restNumbersToDraw boardWithState
         Just drawnNumberCoordinates ->
             let updatedMarkedCoordinatesMap = markCoordinates markedCoordinatesMap drawnNumberCoordinates
                 isBoardWin = checkIfBoardWin updatedMarkedCoordinatesMap drawnNumberCoordinates
             in if isBoardWin
                 then Just drawnNumber
-                else drawNumbers restNumbersToDraw (boardIntList, updatedMarkedCoordinatesMap)
-drawNumbers [] _ = Nothing
+                else drawNumberUntilPossibleWin restNumbersToDraw (boardIntList, updatedMarkedCoordinatesMap)
+drawNumberUntilPossibleWin [] _ = Nothing
 
 
 isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
