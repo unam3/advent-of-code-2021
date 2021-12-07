@@ -3,7 +3,7 @@ module GiantSquid where
 import Data.List (elemIndex, foldl', nub)
 --import Data.Map.Strict (member)
 import Data.Map.Strict hiding (null, foldl', splitAt)
-import Prelude hiding (lookup)
+import Prelude hiding (filter, lookup)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
 getEmptyStringPosition' ('\n':'\n':_) step = Just step
@@ -109,42 +109,42 @@ type BoardWithStateMap = Map Int BoardWithState
 makeBoardWithStateMap :: [BoardWithState] -> BoardWithStateMap
 makeBoardWithStateMap = fromList . zip [0..]
 
-drawNumberUntilPossibleWin' :: NumbersToDraw -> BoardWithStateMap -> Int -> Maybe (BoardWithState, Int)
-drawNumberUntilPossibleWin' numbersToDraw@(drawnNumber : restNumbersToDraw) boardWithStateMap boardWithStateIndex =
+drawNumberUntilFirstPossibleWin' :: NumbersToDraw -> BoardWithStateMap -> Int -> Maybe (BoardWithState, Int, BoardWithStateMap)
+drawNumberUntilFirstPossibleWin' numbersToDraw@(drawnNumber : restNumbersToDraw) boardWithStateMap boardWithStateIndex =
     case lookup boardWithStateIndex boardWithStateMap of
         Just (boardIntList, markedCoordinatesMap) ->
             case findNumberCoordinates drawnNumber boardIntList of
-                Nothing -> drawNumberUntilPossibleWin' numbersToDraw boardWithStateMap (boardWithStateIndex + 1)
+                Nothing -> drawNumberUntilFirstPossibleWin' numbersToDraw boardWithStateMap (boardWithStateIndex + 1)
                 Just drawnNumberCoordinates ->
                     let updatedMarkedCoordinatesMap = markCoordinates markedCoordinatesMap drawnNumberCoordinates
                         isBoardWin = checkIfBoardWin updatedMarkedCoordinatesMap drawnNumberCoordinates
+                        updatedBoardWithStateMap =
+                            insert
+                                boardWithStateIndex
+                                (boardIntList, updatedMarkedCoordinatesMap)
+                                boardWithStateMap
                     in if isBoardWin
-                        then Just ((boardIntList, updatedMarkedCoordinatesMap), drawnNumber)
-                        else let updatedBoardWithStateMap =
-                                    insert
-                                        boardWithStateIndex
-                                        (boardIntList, updatedMarkedCoordinatesMap)
-                                        boardWithStateMap
-                        in drawNumberUntilPossibleWin'
+                        then Just ((boardIntList, updatedMarkedCoordinatesMap), drawnNumber, updatedBoardWithStateMap)
+                        else drawNumberUntilFirstPossibleWin'
                                 numbersToDraw
                                 updatedBoardWithStateMap
                                 (boardWithStateIndex + 1)
-        Nothing -> drawNumberUntilPossibleWin' restNumbersToDraw boardWithStateMap 0
-drawNumberUntilPossibleWin' [] _ _ = Nothing
+        Nothing -> drawNumberUntilFirstPossibleWin' restNumbersToDraw boardWithStateMap 0
+drawNumberUntilFirstPossibleWin' [] _ _ = Nothing
 
-drawNumberUntilPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (BoardWithState, Int)
-drawNumberUntilPossibleWin (numbersToDraw, boardWithStateMap) =
-    drawNumberUntilPossibleWin' numbersToDraw boardWithStateMap 0
+drawNumberUntilFirstPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (BoardWithState, Int, BoardWithStateMap)
+drawNumberUntilFirstPossibleWin (numbersToDraw, boardWithStateMap) =
+    drawNumberUntilFirstPossibleWin' numbersToDraw boardWithStateMap 0
 
-addNumberIfUnmarled :: MarkedCoordinatesMap -> Int -> Int -> (Int, Int) -> Int
-addNumberIfUnmarled markedCoordinatesMap y acc (x, number) =
+addNumberIfUnmarked :: MarkedCoordinatesMap -> Int -> Int -> (Int, Int) -> Int
+addNumberIfUnmarked markedCoordinatesMap y acc (x, number) =
     case lookup (y, x) markedCoordinatesMap of
         Just _ -> acc
         Nothing -> number + acc
 
 sumRow :: MarkedCoordinatesMap -> Int -> (Int, [Int]) -> Int
 sumRow markedCoordinatesMap acc (y, row) = 
-    let rowUnmarkedNumbersSum = foldl' (addNumberIfUnmarled markedCoordinatesMap y) 0
+    let rowUnmarkedNumbersSum = foldl' (addNumberIfUnmarked markedCoordinatesMap y) 0
             -- [(x, v),… (xn, vn)]
             $ zip [0..] row
     in rowUnmarkedNumbersSum + acc
@@ -160,23 +160,16 @@ calculateWinningScore :: BoardWithState -> Int -> Int
 calculateWinningScore boardWithState drawnNumber = sumUnmarkedNumbers boardWithState * drawnNumber
 
 
-isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
-isAnyRowOfBorderHaveSameNumberSeveralTimes = any ((/= 5) . length . nub)
-
-isBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
-isBorderHaveSameNumberSeveralTimes = (/= 25) . length . nub . concat
-
-
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
         . (\ maybeBoardWithStateAndDrawnNumber ->
             case maybeBoardWithStateAndDrawnNumber of
-                Just (boardWithState, drawnNumber) ->
+                Just (boardWithState, drawnNumber, _) ->
                     calculateWinningScore boardWithState drawnNumber
                 Nothing -> error "no winning board"
         )
-        . drawNumberUntilPossibleWin
+        . drawNumberUntilFirstPossibleWin
         . parseInput
         . splitInput
 
@@ -185,17 +178,91 @@ solve = readFile "input.txt"
     >>= print
         . (\ maybeBoardWithStateAndDrawnNumber ->
             case maybeBoardWithStateAndDrawnNumber of
-                Just (boardWithState, drawnNumber) ->
+                Just (boardWithState, drawnNumber, _) ->
                     calculateWinningScore boardWithState drawnNumber
                 Nothing -> error "no winning board"
         )
-        . drawNumberUntilPossibleWin
+        . drawNumberUntilFirstPossibleWin
         . parseInput
         . splitInput
+
+
+getSublistAfterElement :: Int -> [Int] -> [Int]
+getSublistAfterElement drawnNumber numbersToDraw = tail . snd $ break (== drawnNumber) numbersToDraw
+
+-- type BoardWithState = (BoardIntList, MarkedCoordinatesMap)
+-- type BoardWithStateMap = Map Int BoardWithState
+removeBoard :: BoardWithStateMap -> BoardIntList -> BoardWithStateMap
+removeBoard boardWithStateMap boardIntList = filter ((/= boardIntList) . fst) boardWithStateMap
+
+drawNumberUntilLastPossibleWin' ::
+    (NumbersToDraw, BoardWithStateMap)
+    -> [Maybe (BoardWithState, Int, BoardWithStateMap)]
+    -> [Maybe (BoardWithState, Int, BoardWithStateMap)]
+drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap) lastPossibleWinResultsList =
+    let winResults = drawNumberUntilFirstPossibleWin (numbersToDraw, boardWithStateMap)
+    in case winResults of
+        Just (winnedBoardWithState, winnedDrawnNumber, winnedBoardWithStateMap) ->
+            let updatedNumbersToDraw = getSublistAfterElement winnedDrawnNumber numbersToDraw
+                updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap $ fst winnedBoardWithState
+                updatedWinResults = Just (winnedBoardWithState, winnedDrawnNumber, updatedBoardWithStateMap)
+            in drawNumberUntilLastPossibleWin'
+                (updatedNumbersToDraw, updatedBoardWithStateMap)
+                (updatedWinResults : lastPossibleWinResultsList)
+        Nothing -> lastPossibleWinResultsList
+
+drawNumberUntilLastPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> [Maybe (BoardWithState, Int, BoardWithStateMap)]
+drawNumberUntilLastPossibleWin (numbersToDraw, boardWithStateMap) =
+    drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap) []
+
+
+isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
+isAnyRowOfBorderHaveSameNumberSeveralTimes = any ((/= 5) . length . nub)
+
+isBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
+isBorderHaveSameNumberSeveralTimes = (/= 25) . length . nub . concat
+
+getBoardWithStateMap :: Maybe (BoardWithState, Int, BoardWithStateMap) -> BoardWithStateMap
+getBoardWithStateMap (Just (_, _, boardWithStateMap)) = boardWithStateMap
+getBoardWithStateMap _ = undefined
 
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"
     >>= print
+        -- . (\ maybeBoardWithStateAndDrawnNumber ->
+        --     case maybeBoardWithStateAndDrawnNumber of
+        --         Just (boardWithState, drawnNumber) ->
+        --             calculateWinningScore boardWithState drawnNumber
+        --         Nothing -> error "no winning board"
+        -- )
+
+        . (\ (Just (winnedBoardWithState, winnedDrawnNumber, winnedBoardWithStateMap)) ->
+            let updatedNumbersToDraw =
+                    getSublistAfterElement
+                        winnedDrawnNumber
+                        ([7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1])
+                updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap $ fst winnedBoardWithState
+            in drawNumberUntilFirstPossibleWin (updatedNumbersToDraw, updatedBoardWithStateMap)
+
+        )
+        
+        . (\ (Just (winnedBoardWithState, winnedDrawnNumber, winnedBoardWithStateMap)) ->
+            let updatedNumbersToDraw =
+                    getSublistAfterElement
+                        winnedDrawnNumber
+                        ([7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1])
+                updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap $ fst winnedBoardWithState
+            in drawNumberUntilFirstPossibleWin (updatedNumbersToDraw, updatedBoardWithStateMap)
+
+        )
+        
+        -- . getBoardWithStateMap
+        . drawNumberUntilFirstPossibleWin
+
+        -- . getBoardWithStateMap
+        -- . head
+        -- . drawNumberUntilLastPossibleWin
+
         . parseInput
         . splitInput
 

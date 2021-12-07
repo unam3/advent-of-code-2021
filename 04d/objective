@@ -9,3 +9,8 @@ So we could say only when we get through the all of the number to draw which boa
 
 Why drawNumberUntilLastPossibleWin' with boardWithStateMap' missing some marked numbers coordinates from the boardWithStateMap and otherwise?
 
+During research of the questeion were found:
+
+1) We doesn't take into account indexes of boards from map which are after the winning board: have 3 boards. first wins. two others will not be marked with current drawn number.
+
+2) Wrong iteration through map elements: if first board wins it will be removed from the map and drawNumberUntilFirstPossibleWin will return Nothing because there is no first element.
