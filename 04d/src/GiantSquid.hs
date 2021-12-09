@@ -2,7 +2,7 @@ module GiantSquid where
 
 import Data.List (elemIndex, foldl', nub)
 --import Data.Map.Strict (member)
-import Data.Map.Strict hiding (null, foldl', splitAt)
+import Data.Map.Strict hiding (drop, null, foldl', splitAt)
 import Prelude hiding (lookup)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
@@ -196,8 +196,17 @@ removeBoard :: BoardWithStateMap -> Int -> BoardWithStateMap
 removeBoard boardWithStateMap key = delete key boardWithStateMap
 
 
-drawNumberUntilFirstPossibleWin' :: NumbersToDraw -> BoardWithStateMap -> Int -> Maybe (Int, Int, BoardWithStateMap)
-drawNumberUntilFirstPossibleWin' numbersToDraw@(drawnNumber : restNumbersToDraw) boardWithStateMap boardWithStateIndex =
+type BoardWithStateIndex = Int
+
+drawNumberUntilFirstPossibleWin' ::
+    NumbersToDraw
+    -> BoardWithStateMap
+    -> BoardWithStateIndex
+    -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
+drawNumberUntilFirstPossibleWin'
+    numbersToDraw@(drawnNumber : restNumbersToDraw)
+    boardWithStateMap
+    boardWithStateIndex =
     case lookup boardWithStateIndex boardWithStateMap of
         Just (boardIntList, markedCoordinatesMap) ->
             case findNumberCoordinates drawnNumber boardIntList of
@@ -219,30 +228,72 @@ drawNumberUntilFirstPossibleWin' numbersToDraw@(drawnNumber : restNumbersToDraw)
         Nothing -> drawNumberUntilFirstPossibleWin' restNumbersToDraw boardWithStateMap 0
 drawNumberUntilFirstPossibleWin' [] _ _ = Nothing
 
-drawNumberUntilFirstPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (Int, Int, BoardWithStateMap)
+drawNumberUntilFirstPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
 drawNumberUntilFirstPossibleWin (numbersToDraw, boardWithStateMap) =
     drawNumberUntilFirstPossibleWin' numbersToDraw boardWithStateMap 0
 
 
+getNextAvailableBoardWithStateIndex :: BoardWithStateMap -> BoardWithStateIndex -> Maybe BoardWithStateIndex
+getNextAvailableBoardWithStateIndex boardWithStateMap boardWithStateIndex =
+    let availableIndexes = keys boardWithStateMap
+    in case drop 1 $ dropWhile (/= boardWithStateIndex) availableIndexes of
+        (index:_) -> Just index
+        _ -> Nothing
+
+getNonMarkedBoardWithStateIndexes :: BoardWithStateMap -> BoardWithStateIndex -> [BoardWithStateIndex]
+getNonMarkedBoardWithStateIndexes boardWithStateMap boardWithStateIndex =
+    let availableIndexes = keys boardWithStateMap
+    in drop 1 $ dropWhile (/= boardWithStateIndex) availableIndexes
+
+
 drawNumberUntilLastPossibleWin' ::
-    (NumbersToDraw, BoardWithStateMap)
-    -> Maybe (Int, Int, BoardWithStateMap)
-    -> Maybe (Int, Int, BoardWithStateMap)
-drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap) lastWinnedResults =
-    let winResults = drawNumberUntilFirstPossibleWin (numbersToDraw, boardWithStateMap)
-    in case winResults of
+    (NumbersToDraw, BoardWithStateMap, BoardWithStateIndex)
+    -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
+    -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
+drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap, boardWithStateIndex) lastWinnedResults =
+    let maybeWinResults =
+            drawNumberUntilFirstPossibleWin'
+                numbersToDraw
+                boardWithStateMap
+                boardWithStateIndex
+    in case maybeWinResults of
         Just (winnedBoardIndex, winnedDrawnNumber, winnedBoardWithStateMap) ->
-            -- update updatedNumbersToDraw only if all boards are drawn
-            let updatedNumbersToDraw = getSublistAfterElement winnedDrawnNumber numbersToDraw
-                updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap winnedBoardIndex
-            in drawNumberUntilLastPossibleWin'
-                (updatedNumbersToDraw, updatedBoardWithStateMap)
-                (Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap))
+            let updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap winnedBoardIndex
+                nonMarkedBoardIndexes = getNonMarkedBoardWithStateIndexes updatedBoardWithStateMap winnedBoardIndex
+                numbersToDraw' =
+                    if null nonMarkedBoardIndexes
+                        then getSublistAfterElement winnedDrawnNumber numbersToDraw
+                        else numbersToDraw
+                maybeClosestAvailableBoardWithStateIndex =
+                    getNextAvailableBoardWithStateIndex
+                        updatedBoardWithStateMap
+                        winnedBoardIndex
+                maybeFirstClosestAvailableBoardWithStateIndex =
+                    getNextAvailableBoardWithStateIndex
+                        updatedBoardWithStateMap
+                        0
+            in case maybeClosestAvailableBoardWithStateIndex of
+                Just closestAvailableBoardWithStateIndex ->
+                    drawNumberUntilLastPossibleWin'
+                        (numbersToDraw', updatedBoardWithStateMap, closestAvailableBoardWithStateIndex)
+                        (Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap))
+                -- if have nothing from the right
+                Nothing ->
+                    if member 0 updatedBoardWithStateMap
+                        then drawNumberUntilLastPossibleWin'
+                                (numbersToDraw', updatedBoardWithStateMap, 0)
+                                (Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap))
+                    else case maybeFirstClosestAvailableBoardWithStateIndex of
+                        Just firstClosestAvailableBoardWithStateIndex ->
+                            drawNumberUntilLastPossibleWin'
+                                (numbersToDraw', updatedBoardWithStateMap, firstClosestAvailableBoardWithStateIndex)
+                                (Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap))
+                        Nothing -> Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap)
         Nothing -> lastWinnedResults
 
 drawNumberUntilLastPossibleWin :: (NumbersToDraw, BoardWithStateMap) -> Maybe (Int, Int, BoardWithStateMap)
 drawNumberUntilLastPossibleWin (numbersToDraw, boardWithStateMap) =
-    drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap) Nothing
+    drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap, 0) Nothing
 
 
 isAnyRowOfBorderHaveSameNumberSeveralTimes :: BoardIntList -> Bool
