@@ -1,8 +1,8 @@
 module GiantSquid where
 
 import Data.List (elemIndex, foldl', nub)
---import Data.Map.Strict (member)
 import Data.Map.Strict hiding (drop, null, foldl', splitAt)
+--import Debug.Trace (trace)
 import Prelude hiding (lookup)
 
 getEmptyStringPosition' :: String -> Int -> Maybe Int
@@ -204,9 +204,10 @@ drawNumberUntilFirstPossibleWin ::
     -> [BoardWithStateIndex]
     -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
 drawNumberUntilFirstPossibleWin
-    numbersToDraw@(drawnNumber : restNumbersToDraw)
+    numbersToDraw@(drawnNumber : _)
     boardWithStateMap
     (boardWithStateIndex : restBoardWithStateIndices) =
+        --trace (show (drawnNumber, boardWithStateIndex)) $ 
         case lookup boardWithStateIndex boardWithStateMap of
         Just (boardIntList, markedCoordinatesMap) ->
             case findNumberCoordinates drawnNumber boardIntList of
@@ -231,6 +232,7 @@ drawNumberUntilFirstPossibleWin (_ : restNumbersToDraw) boardWithStateMap [] =
 drawNumberUntilFirstPossibleWin [] _ _ = Nothing
 
 
+-- returns non-marked boardWithState indices bigger than boardWithStateIndex
 getNonMarkedBoardWithStateIndexes :: BoardWithStateMap -> BoardWithStateIndex -> [BoardWithStateIndex]
 getNonMarkedBoardWithStateIndexes boardWithStateMap boardWithStateIndex =
     let availableIndexes = keys boardWithStateMap
@@ -248,7 +250,7 @@ drawNumberUntilLastPossibleWin' ::
     (NumbersToDraw, BoardWithStateMap, BoardWithStateIndex)
     -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
     -> Maybe (BoardWithStateIndex, Int, BoardWithStateMap)
-drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap, boardWithStateIndex) lastWinnedResults =
+drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap, _) lastWinnedResults =
     let maybeWinResults =
             drawNumberUntilFirstPossibleWin
                 numbersToDraw
@@ -257,13 +259,14 @@ drawNumberUntilLastPossibleWin' (numbersToDraw, boardWithStateMap, boardWithStat
     in case maybeWinResults of
         Just (winnedBoardIndex, winnedDrawnNumber, winnedBoardWithStateMap) ->
             let updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap winnedBoardIndex
-                nonMarkedBoardIndexes = getNonMarkedBoardWithStateIndexes updatedBoardWithStateMap winnedBoardIndex
-            in case nonMarkedBoardIndexes of
+                nonMarkedBoardIndexes = getNonMarkedBoardWithStateIndexes winnedBoardWithStateMap winnedBoardIndex
+            in --trace (show (winnedBoardIndex, winnedDrawnNumber, nonMarkedBoardIndexes, updatedBoardWithStateMap)) $
+            case nonMarkedBoardIndexes of
                 [] ->
                     let numbersToDraw' = getSublistAfterElement winnedDrawnNumber numbersToDraw
                         availableIndices = keys updatedBoardWithStateMap
                     in if null availableIndices
-                        then (Just (winnedBoardIndex, winnedDrawnNumber, updatedBoardWithStateMap))
+                        then Just (winnedBoardIndex, winnedDrawnNumber, winnedBoardWithStateMap)
                         else
                             let firstAvailableBoardWithStateIndex = head availableIndices
                             in drawNumberUntilLastPossibleWin'
@@ -293,45 +296,26 @@ getBoardWithStateMap _ = undefined
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"
     >>= print
-        -- . (\ maybeBoardWithStateAndDrawnNumber ->
-        --     case maybeBoardWithStateAndDrawnNumber of
-        --         Just (boardWithState, drawnNumber) ->
-        --             calculateWinningScore boardWithState drawnNumber
-        --         Nothing -> error "no winning board"
-        -- )
-
-        -- . (\ (Just (winnedBoardWithState, winnedDrawnNumber, winnedBoardWithStateMap)) ->
-        --     let updatedNumbersToDraw =
-        --             getSublistAfterElement
-        --                 winnedDrawnNumber
-        --                 ([7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1])
-        --         updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap $ fst winnedBoardWithState
-        --     in drawNumberUntilPossibleWin (updatedNumbersToDraw, updatedBoardWithStateMap)
-
-        -- )
-        -- 
-        -- . (\ (Just (winnedBoardWithState, winnedDrawnNumber, winnedBoardWithStateMap)) ->
-        --     let updatedNumbersToDraw =
-        --             getSublistAfterElement
-        --                 winnedDrawnNumber
-        --                 ([7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1])
-        --         updatedBoardWithStateMap = removeBoard winnedBoardWithStateMap $ fst winnedBoardWithState
-        --     in drawNumberUntilPossibleWin (updatedNumbersToDraw, updatedBoardWithStateMap)
-        -- )
-        
-        -- . getBoardWithStateMap
-        . drawNumberUntilPossibleWin
-
-        -- . getBoardWithStateMap
-        -- . head
-        -- . drawNumberUntilLastPossibleWin
-
+        . (\ maybeBoardWithStateAndDrawnNumber ->
+            case maybeBoardWithStateAndDrawnNumber of
+                Just (boardWithStateIndex, drawnNumber, boardWithStateMap) ->
+                    calculateWinningScore (boardWithStateMap ! boardWithStateIndex) drawnNumber
+                Nothing -> error "no winning board"
+        )
+        . drawNumberUntilLastPossibleWin
         . parseInput
         . splitInput
 
 solve2 :: IO ()
 solve2 = readFile "input.txt"
     >>= print
+        . (\ maybeBoardWithStateAndDrawnNumber ->
+            case maybeBoardWithStateAndDrawnNumber of
+                Just (boardWithStateIndex, drawnNumber, boardWithStateMap) ->
+                    calculateWinningScore (boardWithStateMap ! boardWithStateIndex) drawnNumber
+                Nothing -> error "no winning board"
+        )
+        . drawNumberUntilLastPossibleWin
         . parseInput
         . splitInput
 
