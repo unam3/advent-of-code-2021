@@ -50,9 +50,6 @@ getOpenBracket '}' = '{'
 getOpenBracket '>' = '<'
 getOpenBracket nonMatchedChar = error $ "non matched char" ++ show nonMatchedChar
 
-
---isClosingBracket = any (==) ")]}>"
-
 isClosingBracket :: Char -> Bool
 isClosingBracket ')' = True
 isClosingBracket ']' = True
@@ -62,29 +59,25 @@ isClosingBracket _ = False
 
 areChunksLegal :: Chunk -> Bool
 areChunksLegal [_] = False
-areChunksLegal [bracket, closingBracket] = isClosingBracket closingBracket && bracket == (getOpenBracket closingBracket)
+
+areChunksLegal [bracket, closingBracket] =
+    isClosingBracket closingBracket
+        && bracket == getOpenBracket closingBracket
+
 areChunksLegal (bracket:chunkRest) =
-    let closingBracket = getClosingBracket bracket
-        -- find first closing bracket inside chunkRest
-        --  "{[]}…>" -> ("{[", "]}…>")
-        (leftPartWithOpenBracket, rightPartWithLeadingClosingBracket) = break isClosingBracket chunkRest
-    -- check redundancy of this case after implementation
+    let (leftPartWithEndingOpenBracket, rightPartWithLeadingClosingBracket) = break isClosingBracket chunkRest
     in trace (show (bracket, chunkRest)) $
-       trace (show (leftPartWithOpenBracket, rightPartWithLeadingClosingBracket)) $
-        if leftPartWithOpenBracket == [getOpenBracket $ head rightPartWithLeadingClosingBracket] && (rightPartWithLeadingClosingBracket == [getClosingBracket (head rightPartWithLeadingClosingBracket), closingBracket])
-        then True
-        else if
-            (not $ null leftPartWithOpenBracket)
-            && last leftPartWithOpenBracket == (getOpenBracket $ head rightPartWithLeadingClosingBracket)
-                then trace (show (init leftPartWithOpenBracket, tail rightPartWithLeadingClosingBracket))$
-                    -- ("{[", "]}…>") -> ("{", "}…>")
-                    -- get leftPart without ending char
-                    -- get rightPart without leading char
-                    let reducedChunks = bracket : (init leftPartWithOpenBracket)
-                            ++ (tail rightPartWithLeadingClosingBracket)
-                    in trace reducedChunks $ 
-                        areChunksLegal reducedChunks
-                else False
+           trace
+                (show (leftPartWithEndingOpenBracket, rightPartWithLeadingClosingBracket)) $
+                if null leftPartWithEndingOpenBracket
+                    then error $ "list with leading possibly illegal character: " ++ rightPartWithLeadingClosingBracket
+                    else let leftPartWithoutEndingOpenBracket = init leftPartWithEndingOpenBracket
+                        in if null leftPartWithoutEndingOpenBracket
+                            then areChunksLegal $
+                                bracket : tail rightPartWithLeadingClosingBracket
+                            else areChunksLegal $
+                                bracket : leftPartWithoutEndingOpenBracket ++  tail rightPartWithLeadingClosingBracket
+
 areChunksLegal [] = True
 
 

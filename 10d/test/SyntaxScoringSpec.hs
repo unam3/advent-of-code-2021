@@ -36,12 +36,17 @@ spec = do
                 (areChunksLegal "({})") 
                 True
 
-        --it "works on nested series of chunks"
-        --    $ shouldBe
-        --        (areChunksLegal "(<{}[][]>)") 
-        --        True
+        it "works on nested chunks #2"
+            $ shouldBe
+                (areChunksLegal "({<>})") 
+                True
 
-        --it "works on same brackets inside the line"
-        --    $ shouldBe
-        --        (areChunksLegal "<<>>") 
-        --        True
+        it "works on nested series of chunks"
+            $ shouldBe
+                (areChunksLegal "(<{}[][]>)") 
+                True
+
+        it "works on same brackets inside the line"
+            $ shouldBe
+                (areChunksLegal "<<>>") 
+                True
