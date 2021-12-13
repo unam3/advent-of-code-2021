@@ -17,11 +17,6 @@ parseInput :: String -> [Line]
 parseInput = lines
 
 
-isLineLegal :: Line -> Bool
-isLineLegal line@(_:_:_) = head line == last line
-isLineLegal line = error $ "illegal input: " ++ line
-
-
 isNumberOfCharsEven :: Line -> Bool
 isNumberOfCharsEven = even . length
 
@@ -57,46 +52,81 @@ isClosingBracket '}' = True
 isClosingBracket '>' = True
 isClosingBracket _ = False
 
-areChunksLegal :: Chunk -> Bool
-areChunksLegal [_] = False
-
-areChunksLegal [bracket, closingBracket] =
-    isClosingBracket closingBracket
-        && bracket == getOpenBracket closingBracket
-
-areChunksLegal (bracket:chunkRest) =
-    let (leftPartWithEndingOpenBracket, rightPartWithLeadingClosingBracket) = break isClosingBracket chunkRest
-    in trace (show (bracket, chunkRest)) $
-           trace
-                (show (leftPartWithEndingOpenBracket, rightPartWithLeadingClosingBracket)) $
-                if null leftPartWithEndingOpenBracket
-                    then error $ "list with leading possibly illegal character: " ++ rightPartWithLeadingClosingBracket
-                    else let leftPartWithoutEndingOpenBracket = init leftPartWithEndingOpenBracket
-                        in if null leftPartWithoutEndingOpenBracket
-                            then areChunksLegal $
-                                bracket : tail rightPartWithLeadingClosingBracket
-                            else areChunksLegal $
-                                bracket : leftPartWithoutEndingOpenBracket ++  tail rightPartWithLeadingClosingBracket
-
-areChunksLegal [] = True
+isOpenBracket :: Char -> Bool
+isOpenBracket '(' = True
+isOpenBracket '[' = True
+isOpenBracket '{' = True
+isOpenBracket '<' = True
+isOpenBracket _ = False
 
 
-isLineCurrupted :: Line -> Bool
-isLineCurrupted line =
-    isNumberOfCharsEven line && isLineLegal line
+data State = Proceed | Corrupted String | Illegal String
+    deriving (Eq, Show)
 
--- implement getFistIllegalCharecter :: Chunk -> Maybe Char based on areChunksLegal
+getCorruptedChunk :: Chunk -> State
+
+-- illegal
+getCorruptedChunk input@(_ : []) = Illegal $ "illegal input: " ++ input
+
+getCorruptedChunk "()" = Proceed
+getCorruptedChunk "[]" = Proceed
+getCorruptedChunk "{}" = Proceed
+getCorruptedChunk "<>" = Proceed
+
+-- illegal
+getCorruptedChunk input@(')':_) = Illegal $ "illegal input: " ++ input
+getCorruptedChunk input@(']':_) = Illegal $ "illegal input: " ++ input
+getCorruptedChunk input@('}':_) = Illegal $ "illegal input: " ++ input
+getCorruptedChunk input@('>':_) = Illegal $ "illegal input: " ++ input
+
+getCorruptedChunk (bracket:chunkRest) =
+
+    --trace  ("tuple: " ++ (show $ break isClosingBracket chunkRest)) $
+    case break isClosingBracket chunkRest of
+
+        ([], []) -> Illegal $ "illegal input: " ++ (bracket:chunkRest)
+
+        (_, []) -> Illegal $ "illegal input: " ++ (bracket:chunkRest)
+
+        --([], rightPart) ->
+        --    case getCorruptedChunk [bracket, head rightPart] of
+        --        Nothing -> getCorruptedChunk $ tail rightPart
+        --        -- ??
+        --        justPluh -> justPluh
+
+        --(leftPart@(_:_), [c]) ->
+        --    case getCorruptedChunk [last leftPart, c] of
+        --        -- illegal
+        --        Nothing ->  Left $ "illegal input: " ++ (bracket:chunkRest)
+        --        -- ??
+        --        justPluh -> justPluh
+
+        --(leftPart@(_:_), rightPart@(_:_:_)) ->
+        --    case getCorruptedChunk [last leftPart, head rightPart] of
+        --        Nothing -> getCorruptedChunk (bracket : init leftPart ++ tail rightPart)
+        --        -- ??
+        --        justPluh -> justPluh
+
+        nonMatchedTuple -> Illegal $ "non matched tuple: " ++ show nonMatchedTuple
+
+getCorruptedChunk [] = Illegal "illegal input: []"
+
+
+--isLineWithCurruptedChunks :: Line -> Bool
+--isLineWithCurruptedChunks = not . getCorruptedChunk
+
+-- implement getFistIllegalCharecter :: Chunk -> Maybe Char based on getCorruptedChunk
 
 
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
+        . fmap (\ l -> (l, getCorruptedChunk l))
         . parseInput
 
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
-        . (\ lines' -> (length lines', length (filter isLineCurrupted lines')))
         . parseInput
 
 solveTest2 :: IO ()

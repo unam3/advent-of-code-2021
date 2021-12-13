@@ -6,12 +6,6 @@ import SyntaxScoring
 
 spec :: Spec
 spec = do
-    describe "isLineLegal" $ do
-        it "returns True if closing bracket in the end corressond to opening bracket on start"
-            $ shouldBe
-                (isLineLegal "<{)")
-                False
-
     describe "isNumberOfCharsEven" $ do
         it "returns False if number of characters in line is odd"
             $ shouldBe
@@ -24,29 +18,44 @@ spec = do
                 (getLineChunks "<{)")
                 "{"
 
-    describe "areChunksLegal" $ do
+    describe "getCorruptedChunk" $ do
 
         it "works on empty chunk"
             $ shouldBe
-                (areChunksLegal "()") 
-                True
+                (getCorruptedChunk "()") 
+                Proceed
 
         it "works on nested chunks"
             $ shouldBe
-                (areChunksLegal "({})") 
-                True
+                (getCorruptedChunk "({})") 
+                Proceed
 
         it "works on nested chunks #2"
             $ shouldBe
-                (areChunksLegal "({<>})") 
-                True
+                (getCorruptedChunk "({<>})") 
+                Proceed
 
         it "works on nested series of chunks"
             $ shouldBe
-                (areChunksLegal "(<{}[][]>)") 
-                True
+                (getCorruptedChunk "(<{}[][]>)") 
+                Proceed
+
+        it "works on nested series of chunks #2"
+            $ shouldBe
+                (getCorruptedChunk "(<{<>}[][()]>)") 
+                Proceed
 
         it "works on same brackets inside the line"
             $ shouldBe
-                (areChunksLegal "<<>>") 
-                True
+                (getCorruptedChunk "<<>>") 
+                Proceed
+
+        it "works with illegal lines from testInput"
+            $ shouldBe
+                (getCorruptedChunk "[({(<(())[]>[[{[]{<()<>>") 
+                Proceed
+
+        it "works with illegal lines #2 from testInput"
+            $ shouldBe
+                (getCorruptedChunk "[(()[<>])]({[<{<<[]>>(") 
+                Proceed
