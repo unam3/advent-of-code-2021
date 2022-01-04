@@ -40,13 +40,13 @@ type VentPointsMap = Map.Map XYPoint Int
 addOrIterateNumberOfLinesPointIs :: VentPointsMap -> XYPoint -> VentPointsMap
 addOrIterateNumberOfLinesPointIs ventPointsAcc xyPoint = Map.insertWith (+) xyPoint 1 ventPointsAcc
 
-markLinePoints :: VentPointsMap -> LineDefinition -> VentPointsMap
-markLinePoints ventPointsMap lineDefinition =
+markHVLinePoints :: VentPointsMap -> LineDefinition -> VentPointsMap
+markHVLinePoints ventPointsMap lineDefinition =
     let linePoints = getHVLinePoints lineDefinition
     in foldl' addOrIterateNumberOfLinesPointIs ventPointsMap linePoints
 
-makeVentPointsMap :: [LineDefinition] -> VentPointsMap
-makeVentPointsMap = foldl' markLinePoints Map.empty
+makeVentHVPointsMap :: [LineDefinition] -> VentPointsMap
+makeVentHVPointsMap = foldl' markHVLinePoints Map.empty
 
 getPointsWithOverlappedLines :: VentPointsMap -> VentPointsMap
 getPointsWithOverlappedLines = Map.filter (> 1)
@@ -56,7 +56,7 @@ solveTest = readFile "testInput"
     >>= print
         . length
         . getPointsWithOverlappedLines
-        . makeVentPointsMap
+        . makeVentHVPointsMap
         . filter isHVDefinition
         . parseInput
 
@@ -65,17 +65,60 @@ solve = readFile "input.txt"
     >>= print
         . length
         . getPointsWithOverlappedLines
-        . makeVentPointsMap
+        . makeVentHVPointsMap
         . filter isHVDefinition
         . parseInput
+
+
+isDiagonalDefinition :: LineDefinition -> Bool
+isDiagonalDefinition = not . isHVDefinition
+
+getDiagonalLinePoints :: LineDefinition -> [XYPoint]
+getDiagonalLinePoints ((x, y), (x1, y1)) =
+    let xs = (if x < x1
+            then [x..x1]
+            else reverse [x1..x])
+        ys = (if y < y1
+            then [y..y1]
+            else reverse [y1..y])
+    in zip xs ys 
+
+markDiagonalLinePoints :: VentPointsMap -> LineDefinition -> VentPointsMap
+markDiagonalLinePoints ventPointsMap lineDefinition =
+    let linePoints = getDiagonalLinePoints lineDefinition
+    in foldl' addOrIterateNumberOfLinesPointIs ventPointsMap linePoints
+
+markVentDiagonalPoints :: VentPointsMap -> [LineDefinition] -> VentPointsMap
+markVentDiagonalPoints = foldl' markDiagonalLinePoints
+
 
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"
     >>= print
+        . length
+        . getPointsWithOverlappedLines
+        . ( \ lineDefinitionsList -> 
+            let ventHVPointsMap =
+                    makeVentHVPointsMap
+                        $ filter isHVDefinition lineDefinitionsList
+            in markVentDiagonalPoints
+                ventHVPointsMap
+                (filter isDiagonalDefinition lineDefinitionsList)
+        )
         . parseInput
 
 solve2 :: IO ()
 solve2 = readFile "input.txt"
     >>= print
+        . length
+        . getPointsWithOverlappedLines
+        . ( \ lineDefinitionsList -> 
+            let ventHVPointsMap =
+                    makeVentHVPointsMap
+                        $ filter isHVDefinition lineDefinitionsList
+            in markVentDiagonalPoints
+                ventHVPointsMap
+                (filter isDiagonalDefinition lineDefinitionsList)
+        )
         . parseInput
 

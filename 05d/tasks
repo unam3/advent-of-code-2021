@@ -2,3 +2,8 @@
 +2) collect points: input → Map XYPoint [Int]
     + work with only horizontal and vertical line definitions
 +3) length $ filter map (>= 2 overlapped lines)
+
+p2
++ 1) collect diagonal line definitions
++2) mark them n ventPointMap
++3) get number of points in which lines overlaps
