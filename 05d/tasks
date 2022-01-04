@@ -1,0 +1,4 @@
++1) parse input: 0,9 -> 5,9 → ((0,9), (5,9))
++2) collect points: input → Map XYPoint [Int]
+    + work with only horizontal and vertical line definitions
++3) length $ filter map (>= 2 overlapped lines)
