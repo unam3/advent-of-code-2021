@@ -2,3 +2,12 @@
 + 1) simulate day cycle
 + 2) simulate N day cycles
 + 3) Been able to get number of lanternsifh after N days.
+
+p2
+
++0) ~~use more lightweight on RAM data structure~~
+use Map theNumber countOfSuchNumbers
++1) write day cycle simulation
+2) write N day cycle simulation
+    debug with sort on both: listing from puzzle output and simulateNDayCycles output
+    + for puzzle definition test output use group . sort

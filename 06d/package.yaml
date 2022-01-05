@@ -3,12 +3,26 @@ version:             0.1.0.0
 
 dependencies:
 - base == 4.14.3.0
+- containers == 0.6.5.1
 
 ghc-options:
 - -Wall
 
 library:
   source-dirs:      src
+
+executables:
+  06d-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -O2
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - 06d
+
 
 tests:
   06d-test:
