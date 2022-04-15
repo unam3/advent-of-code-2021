@@ -23,3 +23,17 @@ spec = do
                     (7, (1, Nothing)),
                     (14, (1, Nothing))
                 ])
+
+    describe "alignFoldF" $ do
+        it "works with equal align and horizontal positions"
+            $ shouldBe
+                (alignFoldF 10 0 10 (20, Nothing))
+                0
+        it "works with align position bigger than horizontal position"
+            $ shouldBe
+                (alignFoldF 20 0 10 (20, Nothing))
+                200
+        it "works with align position lesser than horizontal position"
+            $ shouldBe
+                (alignFoldF 10 0 20 (20, Nothing))
+                200
