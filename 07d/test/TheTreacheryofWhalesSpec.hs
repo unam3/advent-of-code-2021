@@ -37,3 +37,16 @@ spec = do
             $ shouldBe
                 (alignFoldF 10 0 20 (20, Nothing))
                 200
+
+    describe "countTotalFuelToAlign" $ do
+        it "works"
+            $ shouldBe
+                (countTotalFuelToAlign (parseInput parsedTestInput) 2)
+                37
+
+    describe "getLeastFuelCostAlignPosition" $ do
+        it "works"
+            $ shouldBe
+                (getLeastFuelCostAlignPosition $ parseInput parsedTestInput)
+                (2, 37)
+

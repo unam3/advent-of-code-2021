@@ -8,11 +8,11 @@ import Data.List (foldl')
 {-
 Main questions to answer:
 
-1)•Determine the horizontal position that the crabs can align to using the least fuel possible.
-    - brute force from 0 to 1991?
+1) Determine the horizontal position that the crabs can align to using the least fuel possible.
+    • brute force from least to biggest horizontal positions?
     - any analytical solutions?
         656 number of positions but there can be intermediate numbers between them
-2) How much fuel must they spend to align to that position.
+2) How much fuel must they spend to align to that position. -implemented
     
 
 How represent input numbers? -CrabsMap
@@ -63,9 +63,29 @@ countTotalFuelToAlign :: CrabsMap -> HorizontalPosition -> Int
 countTotalFuelToAlign crabsMap positionToAlign = IntMap.foldlWithKey' (alignFoldF positionToAlign) 0 crabsMap
 
 
+takeMinMaxPositions :: CrabsMap -> (HorizontalPosition, HorizontalPosition)
+takeMinMaxPositions crabsMap =
+    let keys = IntMap.keys crabsMap
+    in (head keys, last keys)
+
+getLeastFuelCostAlignPosition :: CrabsMap -> (HorizontalPosition, Int)
+getLeastFuelCostAlignPosition crabsMap =
+    let (minPos, maxPos) = takeMinMaxPositions crabsMap
+    in foldl'
+        (\ (horizPos, leastFuelToAlign) positionToCheck ->
+            let burnedFuelToAlign = countTotalFuelToAlign crabsMap positionToCheck
+            in if leastFuelToAlign > burnedFuelToAlign
+                then (positionToCheck, burnedFuelToAlign)
+                else (horizPos, leastFuelToAlign)
+        )
+        (minPos, 10000)
+        [minPos..maxPos]
+
+
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
+        . getLeastFuelCostAlignPosition
         . parseInput
 
 solve :: IO ()
