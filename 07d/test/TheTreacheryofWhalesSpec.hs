@@ -10,6 +10,8 @@ spec :: Spec
 spec = do
     parsedTestInput <- runIO $ readFile "testInput"
 
+    parsedInput <- runIO $ readFile "input.txt"
+
     describe "parseInput" $ do
         it "works"
             $ shouldBe
@@ -45,8 +47,13 @@ spec = do
                 37
 
     describe "getLeastFuelCostAlignPosition" $ do
-        it "works"
+        it "works with test input"
             $ shouldBe
-                (getLeastFuelCostAlignPosition $ parseInput parsedTestInput)
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition $ parseInput parsedTestInput)
                 (2, 37)
+
+        it "works with real input"
+            $ shouldBe
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition $ parseInput parsedInput)
+                (342,351901)
 

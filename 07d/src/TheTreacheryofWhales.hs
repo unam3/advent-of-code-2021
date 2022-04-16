@@ -68,29 +68,44 @@ takeMinMaxPositions crabsMap =
     let keys = IntMap.keys crabsMap
     in (head keys, last keys)
 
-getLeastFuelCostAlignPosition :: CrabsMap -> (HorizontalPosition, Int)
+getLeastFuelCostAlignPosition :: CrabsMap -> (HorizontalPosition, Int, String)
 getLeastFuelCostAlignPosition crabsMap =
     let (minPos, maxPos) = takeMinMaxPositions crabsMap
     in foldl'
-        (\ (horizPos, leastFuelToAlign) positionToCheck ->
+        (\ (horizPos, leastFuelToAlign, s) positionToCheck ->
             let burnedFuelToAlign = countTotalFuelToAlign crabsMap positionToCheck
             in if leastFuelToAlign > burnedFuelToAlign
-                then (positionToCheck, burnedFuelToAlign)
-                else (horizPos, leastFuelToAlign)
+                then (positionToCheck, burnedFuelToAlign, s ++ "burnedFuelToAlign " ++ show burnedFuelToAlign ++ " ")
+                else (
+                    horizPos,
+                    leastFuelToAlign,
+                    s ++ "leastFuelToAlign " ++ show leastFuelToAlign
+                        ++ " is < than burnedFuelToAlign " ++ show burnedFuelToAlign
+                        
+                        ++ "; "
+                )
         )
-        (minPos, 10000)
+        (minPos, 1000000000, "")
         [minPos..maxPos]
+
+
+getResultsWithoutDebug :: (HorizontalPosition, Int, String) -> (HorizontalPosition, Int)
+getResultsWithoutDebug (horizontalPosition, totalFuelCost, _) = (horizontalPosition, totalFuelCost)
+
 
 
 solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
+        . getResultsWithoutDebug
         . getLeastFuelCostAlignPosition
         . parseInput
 
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
+        . getResultsWithoutDebug
+        . getLeastFuelCostAlignPosition
         . parseInput
 
 solveTest2 :: IO ()
