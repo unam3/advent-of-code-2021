@@ -33,3 +33,21 @@ spec = do
             $ shouldBe
                 (countAppearenceOf1478 $ parseInput input)
                 495
+
+    describe "normalize" $ do
+        it "works"
+            $ shouldBe
+                (normalize "be cfbegad cbdgef")
+                "be abcdefg bcdefg"
+
+    describe "deriveTopFrom1And7" $ do
+        it "works"
+            $ shouldBe
+                (deriveTopFrom1And7 (Just "be", Just "fbe"))
+                "'\"f\"' is the top line of the seven-digit display"
+
+    describe "deriveBLAndBFrom147" $ do
+        it "works"
+            $ shouldBe
+                (deriveBLAndBFrom147 (Just "be", Just "fbe", Just "gcbe"))
+                "'ad' are the either left bottom or bottom lines of the seven-digit display"
