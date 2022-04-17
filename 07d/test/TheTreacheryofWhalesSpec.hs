@@ -26,34 +26,57 @@ spec = do
                     (14, (1, Nothing))
                 ])
 
-    describe "alignFoldF" $ do
+    describe "fuelCostCount" $ do
         it "works with equal align and horizontal positions"
             $ shouldBe
-                (alignFoldF 10 0 10 (20, Nothing))
+                (fuelCostCount 10 id 0 10 (20, Nothing))
                 0
         it "works with align position bigger than horizontal position"
             $ shouldBe
-                (alignFoldF 20 0 10 (20, Nothing))
+                (fuelCostCount 20 id 0 10 (20, Nothing))
                 200
         it "works with align position lesser than horizontal position"
             $ shouldBe
-                (alignFoldF 10 0 20 (20, Nothing))
+                (fuelCostCount 10 id 0 20 (20, Nothing))
                 200
 
     describe "countTotalFuelToAlign" $ do
         it "works"
             $ shouldBe
-                (countTotalFuelToAlign (parseInput parsedTestInput) 2)
+                (countTotalFuelToAlign (parseInput parsedTestInput) 2 id)
                 37
+
+        it "works for part 2 and testInput"
+            $ shouldBe
+                (countTotalFuelToAlign (parseInput parsedTestInput) 2 countProperFuelCost)
+                206
+
+    --describe "countTotalFuelToAlign'" $ do
+    --    it "works"
+    --        $ shouldBe
+    --            (countTotalFuelToAlign' (parseInput parsedTestInput) 2 countProperFuelCost)
+    --            (206, "")
+
 
     describe "getLeastFuelCostAlignPosition" $ do
         it "works with test input"
             $ shouldBe
-                (getResultsWithoutDebug . getLeastFuelCostAlignPosition $ parseInput parsedTestInput)
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput parsedTestInput)
                 (2, 37)
 
         it "works with real input"
             $ shouldBe
-                (getResultsWithoutDebug . getLeastFuelCostAlignPosition $ parseInput parsedInput)
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput parsedInput)
                 (342,351901)
 
+        it "works for second puzzle part and testInput"
+            $ shouldBe
+                (getResultsWithoutDebug
+                    . getLeastFuelCostAlignPosition countProperFuelCost $ parseInput parsedTestInput)
+                (5,168)
+
+    describe "countProperFuelCost" $ do
+        it "works for 11"
+            $ shouldBe
+                (countProperFuelCost 11)
+                66

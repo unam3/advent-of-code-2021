@@ -1,0 +1,32 @@
+Move from 0  to 2:  2           3
+Move from 1  to 2:  1           1
+Move from 1  to 2:  1           1
+Move from 2  to 2:  0           
+Move from 2  to 2:  0           
+Move from 2  to 2:  0           
+Move from 4  to 2:  2           3
+Move from 7  to 2:  5           15
+Move from 14 to 2: 12           78
+Move from 16 to 2: 14 steps     105
+
+Move from 2  to 2:  0           
+Move from 2  to 2:  0           
+Move from 2  to 2:  0           
+Move from 1  to 2:  1           1
+Move from 1  to 2:  1           1
+Move from 0  to 2:  2           3
+Move from 4  to 2:  2           3
+Move from 7  to 2:  5           15
+Move from 14 to 2: 12           78
+Move from 16 to 2: 14 steps     105
+
+3+1+1+3+15+78+105
+
+
+LESSONS
+
+1. Run tests with real input to solve puzzle instead of running it in ghci (very expensive) or modifying stack project
+to run it witch stack exec.
+
+2. Premature optimization is wrong: type CrabsMap = IntMap (NumberOfCrabsMapInThisPosition, Maybe Fuel)
+I never have used second part of the tuple.

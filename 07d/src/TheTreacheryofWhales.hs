@@ -55,12 +55,53 @@ parseInput inputString =
 -- 2) ap > horizontalPosition -> ap 20, hp 10 → 10
 -- 3) ap < horizontalPosition -> ap 10, hp 20 → 10 
 
-alignFoldF :: HorizontalPosition -> Int -> Int -> (NumberOfCrabsMapInThisPosition, Maybe Fuel) -> Int
-alignFoldF positionToAlign acc horizontalPosition (numberOfCrabsMapInThisPosition, _) =
-    acc + (abs (positionToAlign - horizontalPosition) * numberOfCrabsMapInThisPosition)
+{-
+step - cost
+0 - 0
+1 - 1
+2 - 2
+3 - 3
 
-countTotalFuelToAlign :: CrabsMap -> HorizontalPosition -> Int
-countTotalFuelToAlign crabsMap positionToAlign = IntMap.foldlWithKey' (alignFoldF positionToAlign) 0 crabsMap
+3 position will cost 1 + 2 + 3 fuel
+
+
+[(0, 0), (1, 1), (2, 2), (3, 3)]
+
+fmap countProperFuelCost [0..]
+
+
+position - total cost
+0 0
+1 1
+2 3
+3 6
+4 10
+
+-}
+
+countProperFuelCost :: Int -> Int
+countProperFuelCost 0 = 0
+countProperFuelCost 1 = 1
+countProperFuelCost numberOfSteps = numberOfSteps + (countProperFuelCost $ numberOfSteps - 1)
+
+
+fuelCostCount :: HorizontalPosition -> (Int -> Int) -> Int -> Int -> (NumberOfCrabsMapInThisPosition, Maybe Fuel) -> Int
+fuelCostCount positionToAlign deltaProcessing acc horizontalPosition (numberOfCrabsMapInThisPosition, _) =
+    acc + (deltaProcessing (abs (positionToAlign - horizontalPosition)) * numberOfCrabsMapInThisPosition)
+
+countTotalFuelToAlign :: CrabsMap -> HorizontalPosition -> (Int -> Int) -> Int
+countTotalFuelToAlign crabsMap positionToAlign deltaProcessing =
+    IntMap.foldlWithKey' (fuelCostCount positionToAlign deltaProcessing) 0 crabsMap
+
+countTotalFuelToAlign' :: CrabsMap -> HorizontalPosition -> (Int -> Int) -> (Int, String)
+countTotalFuelToAlign' crabsMap positionToAlign deltaProcessing =
+    IntMap.foldlWithKey'
+        (\ acc horizontalPosition pluh@(multiplier, _) ->
+            let cost = fuelCostCount positionToAlign deltaProcessing (fst acc) horizontalPosition pluh
+            in (cost, snd acc ++ show horizontalPosition ++ "*" ++ show multiplier ++ " -> " ++ show cost ++ "   ")
+        )
+        (0, "")
+        crabsMap
 
 
 takeMinMaxPositions :: CrabsMap -> (HorizontalPosition, HorizontalPosition)
@@ -68,12 +109,12 @@ takeMinMaxPositions crabsMap =
     let keys = IntMap.keys crabsMap
     in (head keys, last keys)
 
-getLeastFuelCostAlignPosition :: CrabsMap -> (HorizontalPosition, Int, String)
-getLeastFuelCostAlignPosition crabsMap =
+getLeastFuelCostAlignPosition :: (Int -> Int) -> CrabsMap -> (HorizontalPosition, Int, String)
+getLeastFuelCostAlignPosition deltaProcessing crabsMap =
     let (minPos, maxPos) = takeMinMaxPositions crabsMap
     in foldl'
         (\ (horizPos, leastFuelToAlign, s) positionToCheck ->
-            let burnedFuelToAlign = countTotalFuelToAlign crabsMap positionToCheck
+            let burnedFuelToAlign = countTotalFuelToAlign crabsMap positionToCheck deltaProcessing
             in if leastFuelToAlign > burnedFuelToAlign
                 then (positionToCheck, burnedFuelToAlign, s ++ "burnedFuelToAlign " ++ show burnedFuelToAlign ++ " ")
                 else (
@@ -85,7 +126,7 @@ getLeastFuelCostAlignPosition crabsMap =
                         ++ "; "
                 )
         )
-        (minPos, 1000000000, "")
+        (minPos, 100000000000, "")
         [minPos..maxPos]
 
 
@@ -98,23 +139,27 @@ solveTest :: IO ()
 solveTest = readFile "testInput"
     >>= print
         . getResultsWithoutDebug
-        . getLeastFuelCostAlignPosition
+        . getLeastFuelCostAlignPosition id
         . parseInput
 
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
         . getResultsWithoutDebug
-        . getLeastFuelCostAlignPosition
+        . getLeastFuelCostAlignPosition id
         . parseInput
 
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"
     >>= print
+        . getResultsWithoutDebug
+        . getLeastFuelCostAlignPosition countProperFuelCost
         . parseInput
 
 solve2 :: IO ()
 solve2 = readFile "input.txt"
     >>= print
+        . getResultsWithoutDebug
+        . getLeastFuelCostAlignPosition countProperFuelCost
         . parseInput
 
