@@ -8,14 +8,14 @@ import TheTreacheryofWhales
 
 spec :: Spec
 spec = do
-    parsedTestInput <- runIO $ readFile "testInput"
+    testInput <- runIO $ readFile "testInput"
 
-    parsedInput <- runIO $ readFile "input.txt"
+    input <- runIO $ readFile "input.txt"
 
     describe "parseInput" $ do
         it "works"
             $ shouldBe
-                (parseInput parsedTestInput)
+                (parseInput testInput)
                 (IntMap.fromList [
                     (16, (1, Nothing)),
                     (1, (2, Nothing)),
@@ -43,36 +43,36 @@ spec = do
     describe "countTotalFuelToAlign" $ do
         it "works"
             $ shouldBe
-                (countTotalFuelToAlign (parseInput parsedTestInput) 2 id)
+                (countTotalFuelToAlign (parseInput testInput) 2 id)
                 37
 
         it "works for part 2 and testInput"
             $ shouldBe
-                (countTotalFuelToAlign (parseInput parsedTestInput) 2 countProperFuelCost)
+                (countTotalFuelToAlign (parseInput testInput) 2 countProperFuelCost)
                 206
 
     --describe "countTotalFuelToAlign'" $ do
     --    it "works"
     --        $ shouldBe
-    --            (countTotalFuelToAlign' (parseInput parsedTestInput) 2 countProperFuelCost)
+    --            (countTotalFuelToAlign' (parseInput testInput) 2 countProperFuelCost)
     --            (206, "")
 
 
     describe "getLeastFuelCostAlignPosition" $ do
         it "works with test input"
             $ shouldBe
-                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput parsedTestInput)
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput testInput)
                 (2, 37)
 
         it "works with real input"
             $ shouldBe
-                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput parsedInput)
+                (getResultsWithoutDebug . getLeastFuelCostAlignPosition id $ parseInput input)
                 (342,351901)
 
         it "works for second puzzle part and testInput"
             $ shouldBe
                 (getResultsWithoutDebug
-                    . getLeastFuelCostAlignPosition countProperFuelCost $ parseInput parsedTestInput)
+                    . getLeastFuelCostAlignPosition countProperFuelCost $ parseInput testInput)
                 (5,168)
 
     describe "countProperFuelCost" $ do
