@@ -29,4 +29,4 @@ LESSONS
 to run it witch stack exec.
 
 2. Premature optimization is wrong: type CrabsMap = IntMap (NumberOfCrabsMapInThisPosition, Maybe Fuel)
-I never have used second part of the tuple.
+I've never used second part of the tuple.
