@@ -1,13 +1,35 @@
 module SevenSegmentSearchSpec where 
 
-import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 
 import SevenSegmentSearch
 
 spec :: Spec
 spec = do
-    describe "f" $ do
+    describe "parseInput" $ do
         it "works"
             $ shouldBe
-                42
-                42
+                (parseInput "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
+                [["cdfeb", "fcadb", "cdfeb", "cdbaf"]]
+
+    describe "collectAppearenceOf1478" $ do
+        it "works"
+            $ shouldBe
+                (collectAppearenceOf1478 ["c", "ab", "f", "c", "abcdefg", "f", "c", "baf", "f", "c", "abce", "f"])
+                ["ab", "abcdefg", "baf", "abce"]
+
+
+    testInput <- runIO $ readFile "testInput"
+
+    input <- runIO $ readFile "input.txt"
+
+    describe "countAppearenceOf1478" $ do
+        it "works for testInput"
+            $ shouldBe
+                (countAppearenceOf1478 $ parseInput testInput)
+                26
+
+        it "works for input.txt"
+            $ shouldBe
+                (countAppearenceOf1478 $ parseInput input)
+                495
