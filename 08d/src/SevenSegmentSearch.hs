@@ -1,7 +1,7 @@
 module SevenSegmentSearch where
 
 
-import Data.List (elemIndex, foldl', sort, union, (\\))
+import Data.List (elemIndex, findIndices, foldl', sort, union, (\\))
 
 -- In the output values, how many times do digits 1, 4, 7, or 8 appear?
 
@@ -98,7 +98,7 @@ If we have (BL, B), (TL, M) how we can know for sure which is which?
 
 Let's examine 6: it hadn't only TR segment and we can find it by excluding parts of 1 from 8 and analyze all ten unique representations: which one hasn't segment of 1 will be the 6. Also by doing that we can identify TR and BR segments
 
-5 as is has no TR segment, so we can identify B and then BL.
+5 as 6 is has no TR segment, so we can identify B and then BL.
 
 -}
 
@@ -132,8 +132,36 @@ derive6From8And1 eight [o, o1] uniquePatterns =
     in case elemIndex eitherSix uniquePatterns of
         Just _ -> msg ++ eitherSix
         _ -> msg ++ orSix
+derive6From8And1 _ wrongInput _ = error "wrong input for 'one': " ++ wrongInput
 
-derive6From8And1 eight notValidInput _ = error "input of " ++ eight ++ ", " ++ notValidInput ++ " is not valid"
+identifyTRAndBRSegments :: String -> String -> String -> String
+identifyTRAndBRSegments eight six one =
+    let topRightSegment = eight \\ six
+        bottomRightSegment = one \\ topRightSegment
+    in "TR and BR segments are '" ++ topRightSegment ++ "' and '" ++ bottomRightSegment ++ "'"
+
+hasWord :: Char -> String -> Bool
+hasWord char string = (>= 1) . length $ filter (== char) string
+
+derive5From6AndTopRight :: String -> Char -> [String] -> String
+derive5From6AndTopRight six topRightSegment uniquePatterns =
+    let digitsWithoutTRSegment =
+            filter
+                (not . hasWord topRightSegment)
+                uniquePatterns
+        fiveRepresentation = digitsWithoutTRSegment \\ [six]
+    in "5 representation is " ++ concat fiveRepresentation
+
+identifyBLSegment :: String -> String -> String
+identifyBLSegment six five =
+    let bottomLeftSegment = six \\ five
+    in "BL segment is '" ++ bottomLeftSegment ++ "'"
+
+identifyBSegment :: String -> String -> String -> Char -> String
+identifyBSegment seven four eight bLSegment =
+    let bottomLeftAndBottomSegments = eight \\ (union seven four)
+        bottomSegment = bottomLeftAndBottomSegments \\ show bLSegment
+    in "B segment is '" ++ bottomSegment ++ "'"
 
 
 deriveBLAndBFrom147 :: String -> String -> String -> String
@@ -141,13 +169,34 @@ deriveBLAndBFrom147 one four seven =
     let eitherLeftBottomOrBottom = (\\) "abcdefg" $ sort $ union seven $ union four one
     in "'" ++ eitherLeftBottomOrBottom ++ "' are the either left bottom or bottom segments of the seven-digit display"
 
---deriveRepresentationFrom1478 :: (Maybe String, Maybe String, Maybe String, Maybe String) -> String
---deriveRepresentationFrom1478 (maybeOne, maybeFour, maybeSeven, maybeEight) =
---    case (one, four) of
---        (Just one, Just four) ->
---        _ -> "nothing insightful"
+derive9From8AndBottomLeft :: String -> Char -> String
+derive9From8AndBottomLeft eight bottomLeftSegment =
+    let nine = eight \\ show bottomLeftSegment
+    in "9 digit representation is '" ++ nine ++ "'"
 
---addUpAllOutputValues = undefined
+derive3 :: [String] -> String
+derive3 uniquePatterns =
+    --let zeroTwoThree = uniquePatterns \\ [
+    --        (get1 uniquePatterns),
+    --        (get4 uniquePatterns),
+    --        (get7 uniquePatterns),
+    --        (get8 uniquePatterns),
+    --        (derive9From8AndBottomLeft (get8 uniquePatterns) 'g')
+    --    ]
+    let zeroTwoThree = fmap sort ["cagedb", "gcdfa", "fbcad"]
+    in --"3 representation is " ++ three
+        undefined
+
+
+-- only 3 digits have no middle segment: 0, 1, 7
+--derive0 :: String -> Char -> [String] -> String
+--derive0 six topRightSegment uniquePatterns =
+--    let digitsWithoutTRSegment =
+--            filter
+--                (not . hasWord topRightSegment)
+--                uniquePatterns
+--        fiveRepresentation = digitsWithoutTRSegment \\ [six]
+--    in "5 representation is " ++ concat fiveRepresentation
 
 
 solveTest2 :: IO ()

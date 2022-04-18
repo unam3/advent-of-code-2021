@@ -5,6 +5,7 @@ import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 import SevenSegmentSearch
 
 
+tenUniquePatterns :: [String]
 tenUniquePatterns = words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab"
 
 spec :: Spec
@@ -72,6 +73,54 @@ spec = do
             $ shouldBe
                 (derive6From8And1 (get8 tenUniquePatterns) (get1 tenUniquePatterns) tenUniquePatterns)
                 "6 definition is bcdefg"
+
+    describe "identifyTRAndBRSegments" $ do
+        it "works"
+            $ shouldBe
+                (identifyTRAndBRSegments (get8 tenUniquePatterns) "bcdefg" (get1 tenUniquePatterns))
+                "TR and BR segments are 'a' and 'b'"
+
+    describe "hasWord" $ do
+        it "works"
+            $ shouldBe
+                (hasWord 'a' "bca")
+                True
+
+        it "doesn't have false positive"
+            $ shouldBe
+                (hasWord 'a' "bc")
+                False
+    
+    describe "derive5From6AndTopRight" $ do
+        it "works"
+            $ shouldBe
+                (derive5From6AndTopRight "bcdefg" 'a' tenUniquePatterns)
+                "5 representation is bcdef"
+
+    describe "identifyBLSegment" $ do
+        it "works"
+            $ shouldBe
+                (identifyBLSegment "bcdefg"  "bcdef")
+                "BL segment is 'g'"
+
+    describe "identifyBSegment" $ do
+        it "works"
+            $ shouldBe
+                (identifyBSegment (get7 tenUniquePatterns) (get4 tenUniquePatterns) (get8 tenUniquePatterns) 'g')
+                "B segment is 'c'"
+
+    describe "derive9From8AndBottomLeft eight bottomLeftSegment" $ do
+        it "works"
+            $ shouldBe
+                (derive9From8AndBottomLeft (get8 tenUniquePatterns) 'g')
+                "9 digit representation is 'abcdef'"
+
+    --describe "derive0" $ do
+    --    it "works"
+    --        $ shouldBe
+    --            (derive0 "bcdefg" 'a' tenUniquePatterns)
+    --            "5 representation is bcdef"
+
 
     describe "deriveBLAndBFrom147" $ do
         it "works"
