@@ -7,5 +7,6 @@
     + update output of defiving functions
     + diff all numbers that we know and get only 0, 2 and 3 representations
     + filter out 3 from them: only 3 don't have BL.
-· how to get top left and/or middle segments?
-- implement derive0
++ derive 2 and 0:
+    + 5 \\ 3 \\ top right segment to get top left segment
+    + zeroTwoThree \\ three = zeroTwo. Two has no top left segment, but zero does.

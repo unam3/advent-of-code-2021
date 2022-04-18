@@ -157,6 +157,25 @@ identifyBSegment seven four eight bLSegment =
 derive9From8AndBottomLeft :: String -> String -> String
 derive9From8AndBottomLeft eight bottomLeftSegment = eight \\ bottomLeftSegment
 
+
+getZeroTwoThree :: [String] -> [String]
+getZeroTwoThree uniquePatterns = 
+    let one = get1 uniquePatterns
+        eight = get8 uniquePatterns
+        six = derive6From8And1 eight one uniquePatterns
+        topRightSegment = fst $ identifyTRAndBRSegments eight six one
+        five = derive5From6AndTopRight six topRightSegment uniquePatterns
+    in uniquePatterns \\ [
+        one,
+        (get4 uniquePatterns),
+        five,
+        six,
+        (get7 uniquePatterns),
+        eight,
+        (derive9From8AndBottomLeft eight (identifyBLSegment six five))
+    ]
+
+
 derive3 :: [String] -> String
 derive3 uniquePatterns =
     let one = get1 uniquePatterns
@@ -164,18 +183,18 @@ derive3 uniquePatterns =
         six = derive6From8And1 eight one uniquePatterns
         topRightSegment = fst $ identifyTRAndBRSegments eight six one
         five = derive5From6AndTopRight six topRightSegment uniquePatterns
-        zeroTwoThree = uniquePatterns \\ [
-                one,
-                (get4 uniquePatterns),
-                five,
-                six,
-                (get7 uniquePatterns),
-                eight,
-                (derive9From8AndBottomLeft eight (identifyBLSegment six five))
-            ]
         bottomLeftSegment = identifyBLSegment six five
+        zeroTwoThree = getZeroTwoThree uniquePatterns
     in head $ filter (not . hasWord (head bottomLeftSegment)) zeroTwoThree
 
+derive0And2 :: String -> String -> String -> [String] -> (String, String)
+derive0And2 five three topRightSegment uniquePatterns =
+    let topLeftSegment = (five \\ three) \\ topRightSegment
+        zeroTwoThree = getZeroTwoThree uniquePatterns
+        zeroTwo = zeroTwoThree \\ [three]
+        zero = concat $ filter (hasWord $ head topLeftSegment) zeroTwo
+        two = concat $ zeroTwo \\ [zero]
+    in (zero, two)
 
 -- only 3 digits have no middle segment: 0, 1, 7
 --derive0 :: String -> Char -> [String] -> String

@@ -5,8 +5,8 @@ import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 import SevenSegmentSearch
 
 
-tenUniquePatterns :: [String]
-tenUniquePatterns = words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab"
+uniquePatterns :: [String]
+uniquePatterns = words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab"
 
 spec :: Spec
 spec = do
@@ -47,37 +47,37 @@ spec = do
     describe "get1" $ do
         it "works"
             $ shouldBe
-                (get1 tenUniquePatterns)
+                (get1 uniquePatterns)
                 "ab"
 
     describe "get4" $ do
         it "works"
             $ shouldBe
-                (get4 tenUniquePatterns)
+                (get4 uniquePatterns)
                 "abef"
 
     describe "get7" $ do
         it "works"
             $ shouldBe
-                (get7 tenUniquePatterns)
+                (get7 uniquePatterns)
                 "abd"
 
     describe "get8" $ do
         it "works"
             $ shouldBe
-                (get8 tenUniquePatterns)
+                (get8 uniquePatterns)
                 "abcdefg"
 
     describe "derive6From8And1" $ do
         it "works"
             $ shouldBe
-                (derive6From8And1 (get8 tenUniquePatterns) (get1 tenUniquePatterns) tenUniquePatterns)
+                (derive6From8And1 (get8 uniquePatterns) (get1 uniquePatterns) uniquePatterns)
                 "bcdefg"
 
     describe "identifyTRAndBRSegments" $ do
         it "works"
             $ shouldBe
-                (identifyTRAndBRSegments (get8 tenUniquePatterns) "bcdefg" (get1 tenUniquePatterns))
+                (identifyTRAndBRSegments (get8 uniquePatterns) "bcdefg" (get1 uniquePatterns))
                 ("a", "b")
 
     describe "hasWord" $ do
@@ -94,7 +94,7 @@ spec = do
     describe "derive5From6AndTopRight" $ do
         it "works"
             $ shouldBe
-                (derive5From6AndTopRight "bcdefg" "a" tenUniquePatterns)
+                (derive5From6AndTopRight "bcdefg" "a" uniquePatterns)
                 "bcdef"
 
     describe "identifyBLSegment" $ do
@@ -106,23 +106,36 @@ spec = do
     describe "identifyBSegment" $ do
         it "works"
             $ shouldBe
-                (identifyBSegment (get7 tenUniquePatterns) (get4 tenUniquePatterns) (get8 tenUniquePatterns) "g")
+                (identifyBSegment (get7 uniquePatterns) (get4 uniquePatterns) (get8 uniquePatterns) "g")
                 "c"
 
     describe "derive9From8AndBottomLeft" $ do
         it "works"
             $ shouldBe
-                (derive9From8AndBottomLeft (get8 tenUniquePatterns) "g")
+                (derive9From8AndBottomLeft (get8 uniquePatterns) "g")
                 "abcdef"
 
     describe "derive3" $ do
         it "works"
             $ shouldBe
-                (derive3 tenUniquePatterns)
+                (derive3 uniquePatterns)
                 "abcdf"
+
+    describe "derive0And2" $ do
+        it "works"
+            $ shouldBe
+                (let one = get1 uniquePatterns
+                     eight = get8 uniquePatterns
+                     six = derive6From8And1 eight one uniquePatterns
+                     topRightSegment = fst $ identifyTRAndBRSegments eight six one
+                     five = derive5From6AndTopRight six topRightSegment uniquePatterns
+                     three = derive3 uniquePatterns
+                    in derive0And2 five three topRightSegment uniquePatterns
+                )
+                ("abcdeg", "acdfg")
 
     --describe "derive0" $ do
     --    it "works"
     --        $ shouldBe
-    --            (derive0 "bcdefg" 'a' tenUniquePatterns)
+    --            (derive0 "bcdefg" 'a' uniquePatterns)
     --            "5 representation is bcdef"
