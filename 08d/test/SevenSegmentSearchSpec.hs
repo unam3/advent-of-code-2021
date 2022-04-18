@@ -43,11 +43,11 @@ spec = do
     describe "deriveTopFrom1And7" $ do
         it "works"
             $ shouldBe
-                (deriveTopFrom1And7 (Just "be", Just "fbe"))
-                "'\"f\"' is the top line of the seven-digit display"
+                (deriveTopFrom1And7 "be" "fbe")
+                "'\"f\"' is the top segment"
 
     describe "deriveBLAndBFrom147" $ do
         it "works"
             $ shouldBe
-                (deriveBLAndBFrom147 (Just "be", Just "fbe", Just "gcbe"))
-                "'ad' are the either left bottom or bottom lines of the seven-digit display"
+                (deriveBLAndBFrom147 "be" "fbe" "gcbe")
+                "'ad' are the either left bottom or bottom segments of the seven-digit display"

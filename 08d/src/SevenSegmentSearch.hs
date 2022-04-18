@@ -59,10 +59,10 @@ p2ParseInput = fmap normalize . lines
 
 Deduce four digits of the output value and decode them.
 
-1) derive top:
+1) identify T (top) segment representation:
     if we have 1 ab and 7 abc then top is "c"
 
-2) deduce 9 from (1,4,7):
+2) get 9 from (1,4,7):
     if we have 1 ab and 4 abcd then top left and middle are either "c" or "d"
         and this is useful for deducing 5, 6, 8 and 9
 
@@ -78,34 +78,41 @@ Deduce four digits of the output value and decode them.
 if we have 1, 4 and 7 we need only one side for 9
 
 n    number of lines
-0 -  6
-1 - u2
-2 -  5
-3 -  5
-4 - u4
-5 -  5
-6 -  6
-7 - u3
-8 - u7
+1 - 2 exclusively
+7 - 3 exclusively
+4 - 4 exclusively
+2 - 5
+3 - 5
+5 - 5
+6 - 6
+0 - 6
 9 - 6
+8 - 7 exclusively
+
+1 (TR, BR)          is in 0, 1, 3, 4, 7, 8, 9
+4 (TR, BR, M, TL)   is in 4, 8, 9
+7 (T, TR, BR)       is in 0, 3, 7, 8, 9
+
+If we have (BL, B), (TL, M) how we can know for sure which is which?
+
+
+Let's examine 6: it hadn't only TR segment and we can find it by excluding parts of 1 from 8 and analyze all ten unique representations: which one hasn't segment of 1 will be the 6. Also by doing that we can identify TR and BR segments
+
+5 as is has no TR segment, so we can identify B and then BL.
 
 -}
 
 
 
-deriveTopFrom1And7 :: (Maybe String, Maybe String) -> String
-deriveTopFrom1And7 (Just one, Just seven) = 
+deriveTopFrom1And7 :: String -> String -> String
+deriveTopFrom1And7 one seven = 
     let c = seven \\ one
-    in "'" ++ show c ++ "' is the top line of the seven-digit display"
-deriveTopFrom1And7 (maybeOne, maybeSeven) = "can't derive top from 1 and 7: " ++ show (maybeOne, maybeSeven)
+    in "'" ++ show c ++ "' is the top segment"
 
-deriveBLAndBFrom147 :: (Maybe String, Maybe String, Maybe String) -> String
-deriveBLAndBFrom147 (Just one, Just four, Just seven) = 
+deriveBLAndBFrom147 :: String -> String -> String -> String
+deriveBLAndBFrom147 one four seven = 
     let eitherLeftBottomOrBottom = (\\) "abcdefg" $ sort $ union seven $ union four one
-    in "'" ++ eitherLeftBottomOrBottom ++ "' are the either left bottom or bottom lines of the seven-digit display"
-
-deriveBLAndBFrom147 (maybeOne, maybeFour, maybeSeven) =
-    "can't derive top from 1 and 7: " ++ show (maybeOne, maybeFour, maybeSeven)
+    in "'" ++ eitherLeftBottomOrBottom ++ "' are the either left bottom or bottom segments of the seven-digit display"
 
 --deriveRepresentationFrom1478 :: (Maybe String, Maybe String, Maybe String, Maybe String) -> String
 --deriveRepresentationFrom1478 (maybeOne, maybeFour, maybeSeven, maybeEight) =
