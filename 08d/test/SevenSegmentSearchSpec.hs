@@ -4,6 +4,9 @@ import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 
 import SevenSegmentSearch
 
+
+tenUniquePatterns = words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab"
+
 spec :: Spec
 spec = do
     describe "parseInput" $ do
@@ -40,11 +43,35 @@ spec = do
                 (normalize "be cfbegad cbdgef")
                 "be abcdefg bcdefg"
 
-    describe "deriveTopFrom1And7" $ do
+    describe "get1" $ do
         it "works"
             $ shouldBe
-                (deriveTopFrom1And7 "be" "fbe")
-                "'\"f\"' is the top segment"
+                (get1 tenUniquePatterns)
+                "ab"
+
+    describe "get4" $ do
+        it "works"
+            $ shouldBe
+                (get4 tenUniquePatterns)
+                "abef"
+
+    describe "get7" $ do
+        it "works"
+            $ shouldBe
+                (get7 tenUniquePatterns)
+                "abd"
+
+    describe "get8" $ do
+        it "works"
+            $ shouldBe
+                (get8 tenUniquePatterns)
+                "abcdefg"
+
+    describe "derive6From8And1" $ do
+        it "works"
+            $ shouldBe
+                (derive6From8And1 (get8 tenUniquePatterns) (get1 tenUniquePatterns) tenUniquePatterns)
+                "6 definition is bcdefg"
 
     describe "deriveBLAndBFrom147" $ do
         it "works"

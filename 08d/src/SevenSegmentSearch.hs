@@ -1,7 +1,7 @@
 module SevenSegmentSearch where
 
 
-import Data.List (foldl', sort, union, (\\))
+import Data.List (elemIndex, foldl', sort, union, (\\))
 
 -- In the output values, how many times do digits 1, 4, 7, or 8 appear?
 
@@ -103,11 +103,38 @@ Let's examine 6: it hadn't only TR segment and we can find it by excluding parts
 -}
 
 
-
 deriveTopFrom1And7 :: String -> String -> String
 deriveTopFrom1And7 one seven = 
     let c = seven \\ one
     in "'" ++ show c ++ "' is the top segment"
+
+
+getFixedLengthDefinition :: Int -> [String] -> String
+getFixedLengthDefinition definitionLength = head . filter ((== definitionLength) . length)
+
+get1 :: [String] -> String
+get1 = getFixedLengthDefinition 2
+
+get4 :: [String] -> String
+get4 = getFixedLengthDefinition 4
+
+get7 :: [String] -> String
+get7 = getFixedLengthDefinition 3
+
+get8 :: [String] -> String
+get8 = getFixedLengthDefinition 7
+
+derive6From8And1 :: String -> String -> [String] -> String
+derive6From8And1 eight [o, o1] uniquePatterns =
+    let eitherSix = eight \\ (show o)
+        orSix = eight \\ (show o1)
+        msg = "6 definition is "
+    in case elemIndex eitherSix uniquePatterns of
+        Just _ -> msg ++ eitherSix
+        _ -> msg ++ orSix
+
+derive6From8And1 eight notValidInput _ = error "input of " ++ eight ++ ", " ++ notValidInput ++ " is not valid"
+
 
 deriveBLAndBFrom147 :: String -> String -> String -> String
 deriveBLAndBFrom147 one four seven = 
