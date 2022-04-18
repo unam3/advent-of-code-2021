@@ -103,12 +103,6 @@ Let's examine 6: it hadn't only TR segment and we can find it by excluding parts
 -}
 
 
-deriveTopFrom1And7 :: String -> String -> String
-deriveTopFrom1And7 one seven = 
-    let c = seven \\ one
-    in "'" ++ show c ++ "' is the top segment"
-
-
 getFixedLengthDefinition :: Int -> [String] -> String
 getFixedLengthDefinition definitionLength = head . filter ((== definitionLength) . length)
 
@@ -128,64 +122,59 @@ derive6From8And1 :: String -> String -> [String] -> String
 derive6From8And1 eight [o, o1] uniquePatterns =
     let eitherSix = eight \\ (show o)
         orSix = eight \\ (show o1)
-        msg = "6 definition is "
     in case elemIndex eitherSix uniquePatterns of
-        Just _ -> msg ++ eitherSix
-        _ -> msg ++ orSix
+        Just _ -> eitherSix
+        _ -> orSix
 derive6From8And1 _ wrongInput _ = error "wrong input for 'one': " ++ wrongInput
 
-identifyTRAndBRSegments :: String -> String -> String -> String
+identifyTRAndBRSegments :: String -> String -> String -> (String, String)
 identifyTRAndBRSegments eight six one =
     let topRightSegment = eight \\ six
         bottomRightSegment = one \\ topRightSegment
-    in "TR and BR segments are '" ++ topRightSegment ++ "' and '" ++ bottomRightSegment ++ "'"
+    in (topRightSegment, bottomRightSegment)
+
 
 hasWord :: Char -> String -> Bool
 hasWord char string = (>= 1) . length $ filter (== char) string
 
-derive5From6AndTopRight :: String -> Char -> [String] -> String
+derive5From6AndTopRight :: String -> String -> [String] -> String
 derive5From6AndTopRight six topRightSegment uniquePatterns =
     let digitsWithoutTRSegment =
             filter
-                (not . hasWord topRightSegment)
+                (not . hasWord (head topRightSegment))
                 uniquePatterns
-        fiveRepresentation = digitsWithoutTRSegment \\ [six]
-    in "5 representation is " ++ concat fiveRepresentation
+    in head $ digitsWithoutTRSegment \\ [six]
 
 identifyBLSegment :: String -> String -> String
-identifyBLSegment six five =
-    let bottomLeftSegment = six \\ five
-    in "BL segment is '" ++ bottomLeftSegment ++ "'"
+identifyBLSegment six five = six \\ five
 
-identifyBSegment :: String -> String -> String -> Char -> String
+identifyBSegment :: String -> String -> String -> String -> String
 identifyBSegment seven four eight bLSegment =
     let bottomLeftAndBottomSegments = eight \\ (union seven four)
-        bottomSegment = bottomLeftAndBottomSegments \\ show bLSegment
-    in "B segment is '" ++ bottomSegment ++ "'"
+    in bottomLeftAndBottomSegments \\ show bLSegment
 
 
-deriveBLAndBFrom147 :: String -> String -> String -> String
-deriveBLAndBFrom147 one four seven = 
-    let eitherLeftBottomOrBottom = (\\) "abcdefg" $ sort $ union seven $ union four one
-    in "'" ++ eitherLeftBottomOrBottom ++ "' are the either left bottom or bottom segments of the seven-digit display"
-
-derive9From8AndBottomLeft :: String -> Char -> String
-derive9From8AndBottomLeft eight bottomLeftSegment =
-    let nine = eight \\ show bottomLeftSegment
-    in "9 digit representation is '" ++ nine ++ "'"
+derive9From8AndBottomLeft :: String -> String -> String
+derive9From8AndBottomLeft eight bottomLeftSegment = eight \\ bottomLeftSegment
 
 derive3 :: [String] -> String
 derive3 uniquePatterns =
-    --let zeroTwoThree = uniquePatterns \\ [
-    --        (get1 uniquePatterns),
-    --        (get4 uniquePatterns),
-    --        (get7 uniquePatterns),
-    --        (get8 uniquePatterns),
-    --        (derive9From8AndBottomLeft (get8 uniquePatterns) 'g')
-    --    ]
-    let zeroTwoThree = fmap sort ["cagedb", "gcdfa", "fbcad"]
-    in --"3 representation is " ++ three
-        undefined
+    let one = get1 uniquePatterns
+        eight = get8 uniquePatterns
+        six = derive6From8And1 eight one uniquePatterns
+        topRightSegment = fst $ identifyTRAndBRSegments eight six one
+        five = derive5From6AndTopRight six topRightSegment uniquePatterns
+        zeroTwoThree = uniquePatterns \\ [
+                one,
+                (get4 uniquePatterns),
+                five,
+                six,
+                (get7 uniquePatterns),
+                eight,
+                (derive9From8AndBottomLeft eight (identifyBLSegment six five))
+            ]
+        bottomLeftSegment = identifyBLSegment six five
+    in head $ filter (not . hasWord (head bottomLeftSegment)) zeroTwoThree
 
 
 -- only 3 digits have no middle segment: 0, 1, 7

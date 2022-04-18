@@ -1,0 +1,11 @@
++ implement identifyTRAndBRSegments
++ implement derive5From6AndTopRight
++ implement identifyBLSegment from 6 \\\ 5
++ implement identifyBSegment from 8 \\ 5
++ implement derive9From8AndBottomLeft
++ how to get 3
+    + update output of defiving functions
+    + diff all numbers that we know and get only 0, 2 and 3 representations
+    + filter out 3 from them: only 3 don't have BL.
+· how to get top left and/or middle segments?
+- implement derive0
