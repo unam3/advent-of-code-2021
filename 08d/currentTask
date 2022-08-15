@@ -10,3 +10,5 @@
 + derive 2 and 0:
     + 5 \\ 3 \\ top right segment to get top left segment
     + zeroTwoThree \\ three = zeroTwo. Two has no top left segment, but zero does.
+- decode the four-digit output values
+- add up all of the output values

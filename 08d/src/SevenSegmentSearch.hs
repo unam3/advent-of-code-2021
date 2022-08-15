@@ -27,6 +27,12 @@ collectAppearenceOf1478 =
     foldl'
         (\ acc digitRepresentation ->
             let len = length digitRepresentation
+            {-
+                only digit "1" is rendered for seven-segment display with 2 segments
+                4 - 4
+                7 - 3
+                8 - 7
+            -}
             in if len == 2 || len == 3 || len == 4 || len == 7
                 then acc ++ [digitRepresentation]
                 else acc
@@ -49,6 +55,7 @@ solve = readFile "input.txt"
         . parseInput
 
 
+-- input has different order of signal wires 10 patterns and output value: "cabfe" and "febac" for example
 normalize :: String -> String
 normalize = unwords . fmap sort . words
 
@@ -119,6 +126,7 @@ get8 :: [String] -> String
 get8 = getFixedLengthDefinition 7
 
 derive6From8And1 :: String -> String -> [String] -> String
+--   the fuck eight is [o, o1] and why? possibly a bug here
 derive6From8And1 eight [o, o1] uniquePatterns =
     let eitherSix = eight \\ (show o)
         orSix = eight \\ (show o1)
@@ -148,6 +156,7 @@ derive5From6AndTopRight six topRightSegment uniquePatterns =
 identifyBLSegment :: String -> String -> String
 identifyBLSegment six five = six \\ five
 
+-- not used anywhere?
 identifyBSegment :: String -> String -> String -> String -> String
 identifyBSegment seven four eight bLSegment =
     let bottomLeftAndBottomSegments = eight \\ (union seven four)
@@ -205,6 +214,48 @@ derive0And2 five three topRightSegment uniquePatterns =
 --                uniquePatterns
 --        fiveRepresentation = digitsWithoutTRSegment \\ [six]
 --    in "5 representation is " ++ concat fiveRepresentation
+
+type DecodedDigits = [(String, Int)]
+
+--decodeFourDigitOuput :: DecodedDigits -> [String] -> [String] -> DecodedDigits
+--decodeFourDigitOuput decodedDigits uniquePatterns fourDigitRepresentation =
+    -- check if any digits need to decode
+    --  any fourDigitRepresentation elements must not be in decodedDigits
+    --if any (\ digitRepresentation -> isNothing $ lookup digitRepresentation decodedDigits)
+    --    then []
+    --    else [("666", 666)]
+
+    -- check if any of digits are easily identifiable (1,4,7,8)
+    
+    -- deduce and identify only necessary digits
+
+bruteForceDigitRepresentations :: [String] -> DecodedDigits
+bruteForceDigitRepresentations uniquePatterns =
+    let one = get1 uniquePatterns
+        four = get4 uniquePatterns
+        seven = get7 uniquePatterns
+        eight = get8 uniquePatterns
+        six = derive6From8And1 eight one uniquePatterns
+        (topRightSegment, _) = identifyTRAndBRSegments eight six one
+        five = derive5From6AndTopRight six topRightSegment uniquePatterns
+        bottomLeftSegment = identifyBLSegment six five
+        nine = derive9From8AndBottomLeft eight bottomLeftSegment
+        zeroTwoThree = getZeroTwoThree uniquePatterns
+        three = derive3 uniquePatterns
+        (zero, two) = derive0And2 five three topRightSegment uniquePatterns
+    in [
+        (one, 1),
+        (four, 4),
+        (seven, 7),
+        (eight, 8),
+        (six, 6),
+        (five, 5),
+        (nine, 9),
+        (three, 3),
+        (zero, 0),
+        (two, 2)
+    ]
+
 
 
 solveTest2 :: IO ()

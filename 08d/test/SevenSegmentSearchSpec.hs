@@ -1,5 +1,6 @@
 module SevenSegmentSearchSpec where 
 
+import Data.List (sort)
 import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 
 import SevenSegmentSearch
@@ -139,3 +140,23 @@ spec = do
     --        $ shouldBe
     --            (derive0 "bcdefg" 'a' uniquePatterns)
     --            "5 representation is bcdef"
+
+    describe "bruteForceDigitRepresentations" $ do
+        it "works"
+            $ shouldBe
+                (sort $ bruteForceDigitRepresentations
+                    (words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab")
+                )
+
+                (sort $ [
+                    (sort "acedgfb", 8),
+                    (sort "cdfbe", 5),
+                    (sort "gcdfa", 2),
+                    (sort "fbcad", 3),
+                    (sort "dab", 7),
+                    (sort "cefabd", 9),
+                    (sort "cdfgeb", 6),
+                    (sort "eafb", 4),
+                    (sort "cagedb", 0),
+                    (sort "ab", 1)
+                ])
