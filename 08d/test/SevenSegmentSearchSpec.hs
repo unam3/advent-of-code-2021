@@ -148,7 +148,7 @@ spec = do
                     (words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab")
                 )
 
-                (sort $ [
+                (sort [
                     (sort "acedgfb", '8'),
                     (sort "cdfbe", '5'),
                     (sort "gcdfa", '2'),
@@ -183,7 +183,7 @@ spec = do
         it "works for testInput"
             $ shouldBe
                 (sum
-                    $ fmap decodeFourDigitOutput
-                    $ p2ParseInput testInput
+                    (decodeFourDigitOutput
+                        <$> p2ParseInput testInput)
                 )
                 61229

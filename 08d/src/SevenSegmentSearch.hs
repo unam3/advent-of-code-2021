@@ -136,8 +136,8 @@ get8 = getFixedLengthDefinition 7
 derive6From8And1 :: String -> String -> [String] -> String
 --   the fuck eight is [o, o1] and why? possibly a bug here
 derive6From8And1 eight [o, o1] uniquePatterns =
-    let eitherSix = eight \\ (show o)
-        orSix = eight \\ (show o1)
+    let eitherSix = eight \\ show o
+        orSix = eight \\ show o1
     in case elemIndex eitherSix uniquePatterns of
         Just _ -> eitherSix
         _ -> orSix
@@ -151,7 +151,7 @@ identifyTRAndBRSegments eight six one =
 
 
 hasWord :: Char -> String -> Bool
-hasWord char string = (>= 1) . length $ filter (== char) string
+hasWord char string = (not . null) $ filter (== char) string
 
 derive5From6AndTopRight :: String -> String -> [String] -> String
 derive5From6AndTopRight six topRightSegment uniquePatterns =
@@ -167,7 +167,7 @@ identifyBLSegment six five = six \\ five
 -- not used anywhere?
 identifyBSegment :: String -> String -> String -> String -> String
 identifyBSegment seven four eight bLSegment =
-    let bottomLeftAndBottomSegments = eight \\ (union seven four)
+    let bottomLeftAndBottomSegments = eight \\ union seven four
     in bottomLeftAndBottomSegments \\ show bLSegment
 
 
@@ -184,12 +184,12 @@ getZeroTwoThree uniquePatterns =
         five = derive5From6AndTopRight six topRightSegment uniquePatterns
     in uniquePatterns \\ [
         one,
-        (get4 uniquePatterns),
+        get4 uniquePatterns,
         five,
         six,
-        (get7 uniquePatterns),
+        get7 uniquePatterns,
         eight,
-        (derive9From8AndBottomLeft eight (identifyBLSegment six five))
+        derive9From8AndBottomLeft eight (identifyBLSegment six five)
     ]
 
 
