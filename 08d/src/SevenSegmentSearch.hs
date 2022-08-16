@@ -229,8 +229,8 @@ type DecodedDigits = [(String, Int)]
     
     -- deduce and identify only necessary digits
 
-bruteForceDigitRepresentations :: [String] -> DecodedDigits
-bruteForceDigitRepresentations uniquePatterns =
+deduceDigitRepresentations :: [String] -> DecodedDigits
+deduceDigitRepresentations uniquePatterns =
     let one = get1 uniquePatterns
         four = get4 uniquePatterns
         seven = get7 uniquePatterns

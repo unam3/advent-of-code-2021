@@ -141,10 +141,10 @@ spec = do
     --            (derive0 "bcdefg" 'a' uniquePatterns)
     --            "5 representation is bcdef"
 
-    describe "bruteForceDigitRepresentations" $ do
+    describe "deduceDigitRepresentations" $ do
         it "works"
             $ shouldBe
-                (sort $ bruteForceDigitRepresentations
+                (sort $ deduceDigitRepresentations
                     (words $ normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab")
                 )
 
