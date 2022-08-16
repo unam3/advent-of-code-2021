@@ -59,8 +59,16 @@ solve = readFile "input.txt"
 normalize :: String -> String
 normalize = unwords . fmap sort . words
 
-p2ParseInput :: String -> [String]
-p2ParseInput = fmap normalize . lines
+splitUniquePatternsAndOutput :: String -> (String, String)
+splitUniquePatternsAndOutput inputEntry =
+    let (uniquePatternsAndSpace, outputWithBarAndSpace) = span (/= '|') inputEntry
+        -- removes last space in string; subject of optimisation
+        uniquePatterns = unwords $ words uniquePatternsAndSpace
+        output = removeBarSpace outputWithBarAndSpace
+    in (uniquePatterns, output)
+
+p2ParseInput :: String -> [(String, String)]
+p2ParseInput = fmap (splitUniquePatternsAndOutput . normalize) . lines
 
 {-
 

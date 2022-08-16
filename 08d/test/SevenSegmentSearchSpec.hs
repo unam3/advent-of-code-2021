@@ -160,3 +160,13 @@ spec = do
                     (sort "cagedb", 0),
                     (sort "ab", 1)
                 ])
+
+    describe "p2ParseInput" $ do
+        it "works"
+            $ shouldBe
+                (p2ParseInput "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
+                [(
+                    normalize "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab",
+                    normalize "cdfeb fcadb cdfeb cdbaf"
+                )]
+
