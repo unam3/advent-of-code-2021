@@ -1,7 +1,7 @@
 module SevenSegmentSearch where
 
 
-import Data.List (elemIndex, findIndices, foldl', sort, union, (\\))
+import Data.List (elemIndex, foldl', sort, union, (\\))
 
 -- In the output values, how many times do digits 1, 4, 7, or 8 appear?
 
@@ -240,7 +240,6 @@ deduceDigitRepresentations uniquePatterns =
         five = derive5From6AndTopRight six topRightSegment uniquePatterns
         bottomLeftSegment = identifyBLSegment six five
         nine = derive9From8AndBottomLeft eight bottomLeftSegment
-        zeroTwoThree = getZeroTwoThree uniquePatterns
         three = derive3 uniquePatterns
         (zero, two) = derive0And2 five three topRightSegment uniquePatterns
     in [
