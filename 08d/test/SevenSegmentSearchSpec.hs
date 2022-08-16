@@ -149,16 +149,16 @@ spec = do
                 )
 
                 (sort $ [
-                    (sort "acedgfb", 8),
-                    (sort "cdfbe", 5),
-                    (sort "gcdfa", 2),
-                    (sort "fbcad", 3),
-                    (sort "dab", 7),
-                    (sort "cefabd", 9),
-                    (sort "cdfgeb", 6),
-                    (sort "eafb", 4),
-                    (sort "cagedb", 0),
-                    (sort "ab", 1)
+                    (sort "acedgfb", '8'),
+                    (sort "cdfbe", '5'),
+                    (sort "gcdfa", '2'),
+                    (sort "fbcad", '3'),
+                    (sort "dab", '7'),
+                    (sort "cefabd", '9'),
+                    (sort "cdfgeb", '6'),
+                    (sort "eafb", '4'),
+                    (sort "cagedb", '0'),
+                    (sort "ab", '1')
                 ])
 
     describe "p2ParseInput" $ do
@@ -170,3 +170,20 @@ spec = do
                     normalize "cdfeb fcadb cdfeb cdbaf"
                 )]
 
+    describe "decodeFourDigitOutput" $ do
+        it "works"
+            $ shouldBe
+                (decodeFourDigitOutput
+                    $ head
+                    $ p2ParseInput
+                        "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+                )
+                5353
+
+        it "works for testInput"
+            $ shouldBe
+                (sum
+                    $ fmap decodeFourDigitOutput
+                    $ p2ParseInput testInput
+                )
+                61229

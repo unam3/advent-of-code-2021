@@ -223,7 +223,7 @@ derive0And2 five three topRightSegment uniquePatterns =
 --        fiveRepresentation = digitsWithoutTRSegment \\ [six]
 --    in "5 representation is " ++ concat fiveRepresentation
 
-type DecodedDigits = [(String, Int)]
+type DecodedDigits = [(String, Char)]
 
 --decodeFourDigitOuput :: DecodedDigits -> [String] -> [String] -> DecodedDigits
 --decodeFourDigitOuput decodedDigits uniquePatterns fourDigitRepresentation =
@@ -251,27 +251,44 @@ deduceDigitRepresentations uniquePatterns =
         three = derive3 uniquePatterns
         (zero, two) = derive0And2 five three topRightSegment uniquePatterns
     in [
-        (one, 1),
-        (four, 4),
-        (seven, 7),
-        (eight, 8),
-        (six, 6),
-        (five, 5),
-        (nine, 9),
-        (three, 3),
-        (zero, 0),
-        (two, 2)
+        (one, '1'),
+        (four, '4'),
+        (seven, '7'),
+        (eight, '8'),
+        (six, '6'),
+        (five, '5'),
+        (nine, '9'),
+        (three, '3'),
+        (zero, '0'),
+        (two, '2')
     ]
 
+foldF :: Show a => Maybe [a] -> Maybe a -> Maybe [a]
+foldF (Just acc) (Just el) = Just (acc ++ [el])
+foldF acc el = error $ "wrong args: " ++ show (acc, el)
+
+decodeFourDigitOutput :: (String, String) -> Int
+decodeFourDigitOutput (uniquePatterns, output) =
+    let digitRepresentations = deduceDigitRepresentations $ words uniquePatterns
+        maybeStringNumber = foldl'
+            foldF
+            (Just "")
+            $ fmap (`lookup` digitRepresentations) (words output)
+    in case maybeStringNumber of
+        (Just stringNumber) -> read stringNumber
+        _ -> error "Something went wrong™"
 
 
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"
     >>= print
+        . sum
+        . fmap decodeFourDigitOutput
         . p2ParseInput
 
 solve2 :: IO ()
 solve2 = readFile "input.txt"
     >>= print
-        . parseInput
-
+        . sum
+        . fmap decodeFourDigitOutput
+        . p2ParseInput
