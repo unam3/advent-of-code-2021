@@ -28,6 +28,9 @@ isOpenBracketMatchTo ('{', '}') = True
 isOpenBracketMatchTo ('<', '>') = True
 isOpenBracketMatchTo (_, _) = False
 
+haveNoOpenOrClosingBracketIn :: String
+haveNoOpenOrClosingBracketIn = "Have no open or closing bracket in "
+
 isLineCorruptedAndWhere :: String -> Maybe String
 isLineCorruptedAndWhere line =
     -- 1. Find first closing bracket from the left.
@@ -39,7 +42,7 @@ isLineCorruptedAndWhere line =
 
     -- 2. Compare it with open bracket to the left.
     in if (null openParenPart) || (null closingParenPart)
-        then Just $ "Have no open or closing bracket in " ++ show (openParenPart, closingParenPart)
+        then Just $ haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart)
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)

@@ -1,8 +1,13 @@
 module SyntaxScoringSpec where 
 
+import Data.List (isPrefixOf)
 import Test.Hspec (Spec, describe, it, runIO, shouldBe, shouldNotBe)
 
 import SyntaxScoring
+
+isLineIncomplete :: Maybe String -> Bool
+isLineIncomplete (Just str) = isPrefixOf haveNoOpenOrClosingBracketIn str
+isLineIncomplete _ = False
 
 spec :: Spec
 spec = do
@@ -38,4 +43,27 @@ spec = do
                 (isLineCorruptedAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
                 -- from puzzle text
                 -- (Just "Expected ], but found } instead.")
+                (Just "Expected open bracket for '}', but found '[' instead.")
+
+        it "works for testInput"
+            $ shouldBe
+                (map (\maybeErrorString -> if isLineIncomplete maybeErrorString
+                        then Nothing
+                        else maybeErrorString
+                    )
+                    $ map isLineCorruptedAndWhere $ parseInput testInput
+                )
+                $ pure [
+                    Nothing,
+                    Nothing,
+                    Just "Expected open bracket for '}', but found '[' instead.",
+                    Nothing,
+                    Just "Expected open bracket for ')', but found '[' instead.",
+                    Just "Expected open bracket for ']', but found '(' instead.",
+                    Nothing,
+                    Just "Expected open bracket for ')', but found '<' instead.",
+                    Just "Expected open bracket for '>', but found '[' instead.",
+                    Nothing
+                ]
+
                 (Just "Expected open bracket for '}', but found '[' instead.")
