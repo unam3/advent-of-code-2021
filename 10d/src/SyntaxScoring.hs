@@ -35,6 +35,7 @@ isLineCorruptedAndWhere line =
     -- ("[({(<((", "))[]>[[{[]{<()<>>")
         leftParen = last openParenPart
         rightParen = head closingParenPart
+        reducedLine = init openParenPart ++ tail closingParenPart
 
     -- 2. Compare it with open bracket to the left.
     in if (null openParenPart) || (null closingParenPart)
@@ -42,10 +43,9 @@ isLineCorruptedAndWhere line =
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)
-            then undefined
+            then isLineCorruptedAndWhere reducedLine
             else Just
                 $ "Expected open bracket for " ++ show rightParen ++ ", but found " ++ show leftParen ++ " instead."
-            --else Just "Expected ], but found } instead."
 
 
 solveTest :: IO ()

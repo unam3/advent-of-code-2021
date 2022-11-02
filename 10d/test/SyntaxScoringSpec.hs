@@ -36,4 +36,6 @@ spec = do
         it "works"
             $ shouldBe
                 (isLineCorruptedAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
-                (Just "Expected ], but found } instead.")
+                -- from puzzle text
+                -- (Just "Expected ], but found } instead.")
+                (Just "Expected open bracket for '}', but found '[' instead.")
