@@ -1,61 +1,39 @@
 module SyntaxScoringSpec where 
 
-import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, runIO, shouldBe, shouldNotBe)
 
 import SyntaxScoring
 
 spec :: Spec
 spec = do
-    describe "isNumberOfCharsEven" $ do
-        it "returns False if number of characters in line is odd"
-            $ shouldBe
-                (isNumberOfCharsEven "<{)")
-                False
+    testInput <- runIO $ readFile "testInput"
 
-    describe "getLineChunks" $ do
-        it "returns substring without leading and ending characters"
-            $ shouldBe
-                (getLineChunks "<{)")
-                "{"
+    input <- runIO $ readFile "input.txt"
 
-    describe "getCorruptedChunk" $ do
+    describe "criteria for incomplete lines" $ do
+        it "is not right"
+            $ shouldNotBe
+                (filterLinesWithOddNumberOfCharectersOut $ parseInput testInput)
+                [
+                    "{([(<{}[<>[]}>{[]{[(<()>",
+                    "[[<[([]))<([[{}[[()]]]",
+                    "[{[{({}]{}}([{[{{{}}([]",
+                    "[<(<(<(<{}))><([]([]()",
+                    "<{([([[(<>()){}]>(<<{{"
+                ]
 
-        it "works on empty chunk"
+    describe "isLineCorruptedAndWhere" $ do
+        it "reports error for no open or closing bracket case"
             $ shouldBe
-                (getCorruptedChunk "()") 
-                Proceed
+                (isLineCorruptedAndWhere "{([(<{")
+                (Just "Have no open or closing bracket in (\"{([(<{\",\"\")")
 
-        it "works on nested chunks"
+        it "reports error for mismatched parens"
             $ shouldBe
-                (getCorruptedChunk "({})") 
-                Proceed
+                (isLineCorruptedAndWhere "{([(<{]")
+                (Just "Expected open bracket for ']', but found '{' instead.")
 
-        it "works on nested chunks #2"
+        it "works"
             $ shouldBe
-                (getCorruptedChunk "({<>})") 
-                Proceed
-
-        it "works on nested series of chunks"
-            $ shouldBe
-                (getCorruptedChunk "(<{}[][]>)") 
-                Proceed
-
-        it "works on nested series of chunks #2"
-            $ shouldBe
-                (getCorruptedChunk "(<{<>}[][()]>)") 
-                Proceed
-
-        it "works on same brackets inside the line"
-            $ shouldBe
-                (getCorruptedChunk "<<>>") 
-                Proceed
-
-        it "works with illegal lines from testInput"
-            $ shouldBe
-                (getCorruptedChunk "[({(<(())[]>[[{[]{<()<>>") 
-                Proceed
-
-        it "works with illegal lines #2 from testInput"
-            $ shouldBe
-                (getCorruptedChunk "[(()[<>])]({[<{<<[]>>(") 
-                Proceed
+                (isLineCorruptedAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
+                (Just "Expected ], but found } instead.")
