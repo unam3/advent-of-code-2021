@@ -26,51 +26,61 @@ spec = do
         it "reports error for no open or closing bracket case"
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere "{([(<{")
-                (Just $ haveNoOpenOrClosingBracketIn ++ "(\"{([(<{\",\"\")")
+                (Left $ haveNoOpenOrClosingBracketIn ++ "(\"{([(<{\",\"\")")
 
         it "reports error for mismatched parens"
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere "{([(<{]")
-                (Just "Expected open bracket for ']', but found '{' instead.")
+                (Right ("Expected open bracket for ']', but found '{' instead.", ']'))
 
         it "works"
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
                 -- from puzzle text
                 -- (Just "Expected ], but found } instead.")
-                (Just "Expected open bracket for '}', but found '[' instead.")
+                (Right ("Expected open bracket for '}', but found '[' instead.", '}'))
 
         it "works for testInput"
             $ shouldBe
-                (fmap mapIncompleteLineToNothing
-                    $ fmap isLineCorruptedOrIllegalAndWhere $ parseInput testInput
-                )
+                (fmap isLineCorruptedOrIllegalAndWhere $ parseInput testInput)
                 [
-                    Nothing,
-                    Nothing,
-                    Just "Expected open bracket for '}', but found '[' instead.",
-                    Nothing,
-                    Just "Expected open bracket for ')', but found '[' instead.",
-                    Just "Expected open bracket for ']', but found '(' instead.",
-                    Nothing,
-                    Just "Expected open bracket for ')', but found '<' instead.",
-                    Just "Expected open bracket for '>', but found '[' instead.",
-                    Nothing
+                    Left "Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")",
+                    Left "Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")",
+                    Right ("Expected open bracket for '}', but found '[' instead.", '}'),
+                    Left "Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")",
+                    Right ("Expected open bracket for ')', but found '[' instead.", ')'),
+                    Right ("Expected open bracket for ']', but found '(' instead.", ']'),
+                    Left "Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")",
+                    Right ("Expected open bracket for ')', but found '<' instead.", ')'),
+                    Right ("Expected open bracket for '>', but found '[' instead.", '>'),
+                    Left "Illegal line: have no open or closing bracket in (\"<{([\",\"\")"
                 ]
 
     describe "find corrupted lines" $ do
         it "works for testInput"
             $ shouldBe
-                (collectCorruptedLines
+                (collectCorruptedLinesChar
                     -- [String] -> [Maybe String]
                     $ fmap isLineCorruptedOrIllegalAndWhere
                     -- String -> [String]
                     $ parseInput testInput
                 )
                 [
-                    "Expected open bracket for '}', but found '[' instead.",
-                    "Expected open bracket for ')', but found '[' instead.",
-                    "Expected open bracket for ']', but found '(' instead.",
-                    "Expected open bracket for ')', but found '<' instead.",
-                    "Expected open bracket for '>', but found '[' instead."
+                    '}',
+                    ')',
+                    ']',
+                    ')',
+                    '>'
                 ]
+
+    describe "getTotalSyntaxErrorScore" $ do
+        it "works for testInput"
+            $ shouldBe
+                (getTotalSyntaxErrorScore
+                    $ collectCorruptedLinesChar
+                    -- [String] -> [Maybe String]
+                    $ fmap isLineCorruptedOrIllegalAndWhere
+                    -- String -> [String]
+                    $ parseInput testInput
+                )
+                26397

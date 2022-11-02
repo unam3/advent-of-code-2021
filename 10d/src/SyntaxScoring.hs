@@ -1,7 +1,6 @@
 module SyntaxScoring where
 
-import Data.List (isPrefixOf)
-
+import Data.List (foldl')
 
 parseInput :: String -> [String]
 parseInput = lines
@@ -31,10 +30,13 @@ isOpenBracketMatchTo ('{', '}') = True
 isOpenBracketMatchTo ('<', '>') = True
 isOpenBracketMatchTo (_, _) = False
 
+
+type IllegalOrCorrupted = Either String (String, Char)
+
 haveNoOpenOrClosingBracketIn :: String
 haveNoOpenOrClosingBracketIn = "Illegal line: have no open or closing bracket in "
 
-isLineCorruptedOrIllegalAndWhere :: String -> Maybe String
+isLineCorruptedOrIllegalAndWhere :: String -> IllegalOrCorrupted
 isLineCorruptedOrIllegalAndWhere line =
     -- 1. Find first closing bracket from the left.
     let (openParenPart, closingParenPart) = break isClosingChunkCharacter line
@@ -45,41 +47,42 @@ isLineCorruptedOrIllegalAndWhere line =
 
     -- 2. Compare it with open bracket to the left.
     in if (null openParenPart) || (null closingParenPart)
-        then Just $ haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart)
+        then Left $ haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart)
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)
             then isLineCorruptedOrIllegalAndWhere reducedLine
-            else Just
-                $ "Expected open bracket for " ++ show rightParen ++ ", but found " ++ show leftParen ++ " instead."
+            else Right
+                $ (
+                    "Expected open bracket for " ++ show rightParen ++ ", but found " ++ show leftParen ++ " instead.",
+                    rightParen
+                )
 
 
-isLineIncomplete :: Maybe String -> Bool
-isLineIncomplete (Just str) = isPrefixOf haveNoOpenOrClosingBracketIn str
-isLineIncomplete _ = False
+collectCorruptedLinesChar' :: IllegalOrCorrupted -> [Char] -> [Char]
+collectCorruptedLinesChar' (Right (_, char)) acc = char : acc
+collectCorruptedLinesChar' _ acc = acc
 
-mapIncompleteLineToNothing :: Maybe String -> Maybe String
-mapIncompleteLineToNothing maybeErrorString =
-    if isLineIncomplete maybeErrorString
-    then Nothing
-    else maybeErrorString
-
-collectCorruptedLines' :: Maybe String -> [String] -> [String]
-collectCorruptedLines' (Just line) acc = line : acc
-collectCorruptedLines' _ acc = acc
-
-collectCorruptedLines :: [Maybe String] -> [String]
-collectCorruptedLines = foldr collectCorruptedLines' [] . fmap mapIncompleteLineToNothing
+collectCorruptedLinesChar :: [IllegalOrCorrupted] -> [Char]
+collectCorruptedLinesChar = foldr collectCorruptedLinesChar' []
 
 
-solveTest :: IO ()
-solveTest = readFile "testInput"
-    >>= print
-        . parseInput
+getScorePointsForIllegalCharacter :: Char -> Integer
+getScorePointsForIllegalCharacter ')' = 3
+getScorePointsForIllegalCharacter ']' = 57
+getScorePointsForIllegalCharacter '}' = 1197
+getScorePointsForIllegalCharacter '>' = 25137
+getScorePointsForIllegalCharacter _ = error "No such character to lookup."
+
+getTotalSyntaxErrorScore :: [Char] -> Integer
+getTotalSyntaxErrorScore = foldl' (\acc char -> acc + (getScorePointsForIllegalCharacter char)) 0
 
 solve :: IO ()
 solve = readFile "input.txt"
     >>= print
+        . getTotalSyntaxErrorScore
+        . collectCorruptedLinesChar
+        . fmap isLineCorruptedOrIllegalAndWhere
         . parseInput
 
 solveTest2 :: IO ()
