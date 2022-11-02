@@ -1,19 +1,14 @@
 module SyntaxScoringSpec where 
 
-import Data.List (isPrefixOf)
 import Test.Hspec (Spec, describe, it, runIO, shouldBe, shouldNotBe)
 
 import SyntaxScoring
-
-isLineIncomplete :: Maybe String -> Bool
-isLineIncomplete (Just str) = isPrefixOf haveNoOpenOrClosingBracketIn str
-isLineIncomplete _ = False
 
 spec :: Spec
 spec = do
     testInput <- runIO $ readFile "testInput"
 
-    input <- runIO $ readFile "input.txt"
+    --input <- runIO $ readFile "input.txt"
 
     describe "criteria for incomplete lines" $ do
         it "is not right"
@@ -27,33 +22,30 @@ spec = do
                     "<{([([[(<>()){}]>(<<{{"
                 ]
 
-    describe "isLineCorruptedAndWhere" $ do
+    describe "isLineCorruptedOrIllegalAndWhere" $ do
         it "reports error for no open or closing bracket case"
             $ shouldBe
-                (isLineCorruptedAndWhere "{([(<{")
-                (Just "Have no open or closing bracket in (\"{([(<{\",\"\")")
+                (isLineCorruptedOrIllegalAndWhere "{([(<{")
+                (Just $ haveNoOpenOrClosingBracketIn ++ "(\"{([(<{\",\"\")")
 
         it "reports error for mismatched parens"
             $ shouldBe
-                (isLineCorruptedAndWhere "{([(<{]")
+                (isLineCorruptedOrIllegalAndWhere "{([(<{]")
                 (Just "Expected open bracket for ']', but found '{' instead.")
 
         it "works"
             $ shouldBe
-                (isLineCorruptedAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
+                (isLineCorruptedOrIllegalAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
                 -- from puzzle text
                 -- (Just "Expected ], but found } instead.")
                 (Just "Expected open bracket for '}', but found '[' instead.")
 
         it "works for testInput"
             $ shouldBe
-                (map (\maybeErrorString -> if isLineIncomplete maybeErrorString
-                        then Nothing
-                        else maybeErrorString
-                    )
-                    $ map isLineCorruptedAndWhere $ parseInput testInput
+                (fmap mapIncompleteLineToNothing
+                    $ fmap isLineCorruptedOrIllegalAndWhere $ parseInput testInput
                 )
-                $ pure [
+                [
                     Nothing,
                     Nothing,
                     Just "Expected open bracket for '}', but found '[' instead.",
@@ -66,4 +58,19 @@ spec = do
                     Nothing
                 ]
 
-                (Just "Expected open bracket for '}', but found '[' instead.")
+    describe "find corrupted lines" $ do
+        it "works for testInput"
+            $ shouldBe
+                (collectCorruptedLines
+                    -- [String] -> [Maybe String]
+                    $ fmap isLineCorruptedOrIllegalAndWhere
+                    -- String -> [String]
+                    $ parseInput testInput
+                )
+                [
+                    "Expected open bracket for '}', but found '[' instead.",
+                    "Expected open bracket for ')', but found '[' instead.",
+                    "Expected open bracket for ']', but found '(' instead.",
+                    "Expected open bracket for ')', but found '<' instead.",
+                    "Expected open bracket for '>', but found '[' instead."
+                ]

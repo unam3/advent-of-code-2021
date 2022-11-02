@@ -8,3 +8,13 @@
 1. Find closing bracket from the left.
 2. Compare it with open bracket to the left.
 3. Report error or process rest of the input.
+
+
+TODOs
+
++ 1. Rename isLineCorruptedAndWhere (see "works for testInput" test): it's finds out corrupted lines too that must be filtered out.
+2. Implement:
+    - find the first illegal character in each corrupted line of the navigation subsystem (closing character);
+        - find corrupted lines
+    - calculate the syntax error score for a line;
+    - count total syntax error score for those errors;

@@ -1,18 +1,21 @@
 module SyntaxScoring where
 
+import Data.List (isPrefixOf)
+
 
 parseInput :: String -> [String]
 parseInput = lines
 
 -- 1. Find corrupted lines: lines with a chunk that closes with the wrong character
 
--- are incompleted lines ones with odd number of characters?
+-- are incompleted lines ones with odd number of characters? (nope)
 
 isLineCharactersNumberEven :: String -> Bool
 isLineCharactersNumberEven = even . length
 
 filterLinesWithOddNumberOfCharectersOut :: [String] -> [String]
 filterLinesWithOddNumberOfCharectersOut = filter isLineCharactersNumberEven
+
 
 isClosingChunkCharacter :: Char -> Bool
 isClosingChunkCharacter ')' = True
@@ -29,10 +32,10 @@ isOpenBracketMatchTo ('<', '>') = True
 isOpenBracketMatchTo (_, _) = False
 
 haveNoOpenOrClosingBracketIn :: String
-haveNoOpenOrClosingBracketIn = "Have no open or closing bracket in "
+haveNoOpenOrClosingBracketIn = "Illegal line: have no open or closing bracket in "
 
-isLineCorruptedAndWhere :: String -> Maybe String
-isLineCorruptedAndWhere line =
+isLineCorruptedOrIllegalAndWhere :: String -> Maybe String
+isLineCorruptedOrIllegalAndWhere line =
     -- 1. Find first closing bracket from the left.
     let (openParenPart, closingParenPart) = break isClosingChunkCharacter line
     -- ("[({(<((", "))[]>[[{[]{<()<>>")
@@ -46,9 +49,27 @@ isLineCorruptedAndWhere line =
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)
-            then isLineCorruptedAndWhere reducedLine
+            then isLineCorruptedOrIllegalAndWhere reducedLine
             else Just
                 $ "Expected open bracket for " ++ show rightParen ++ ", but found " ++ show leftParen ++ " instead."
+
+
+isLineIncomplete :: Maybe String -> Bool
+isLineIncomplete (Just str) = isPrefixOf haveNoOpenOrClosingBracketIn str
+isLineIncomplete _ = False
+
+mapIncompleteLineToNothing :: Maybe String -> Maybe String
+mapIncompleteLineToNothing maybeErrorString =
+    if isLineIncomplete maybeErrorString
+    then Nothing
+    else maybeErrorString
+
+collectCorruptedLines' :: Maybe String -> [String] -> [String]
+collectCorruptedLines' (Just line) acc = line : acc
+collectCorruptedLines' _ acc = acc
+
+collectCorruptedLines :: [Maybe String] -> [String]
+collectCorruptedLines = foldr collectCorruptedLines' [] . fmap mapIncompleteLineToNothing
 
 
 solveTest :: IO ()
