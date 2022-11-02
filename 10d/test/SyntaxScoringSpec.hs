@@ -42,7 +42,7 @@ spec = do
 
         it "works for testInput"
             $ shouldBe
-                (fmap isLineCorruptedOrIllegalAndWhere $ parseInput testInput)
+                (isLineCorruptedOrIllegalAndWhere <$> parseInput testInput)
                 [
                     Left "Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")",
                     Left "Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")",
@@ -61,9 +61,9 @@ spec = do
             $ shouldBe
                 (collectCorruptedLinesChar
                     -- [String] -> [Maybe String]
-                    $ fmap isLineCorruptedOrIllegalAndWhere
-                    -- String -> [String]
-                    $ parseInput testInput
+                    $ isLineCorruptedOrIllegalAndWhere
+                        -- String -> [String]
+                        <$> parseInput testInput
                 )
                 [
                     '}',
@@ -79,8 +79,8 @@ spec = do
                 (getTotalSyntaxErrorScore
                     $ collectCorruptedLinesChar
                     -- [String] -> [Maybe String]
-                    $ fmap isLineCorruptedOrIllegalAndWhere
-                    -- String -> [String]
-                    $ parseInput testInput
+                    $ isLineCorruptedOrIllegalAndWhere
+                        -- String -> [String]
+                        <$> parseInput testInput
                 )
                 26397

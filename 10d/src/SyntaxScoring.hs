@@ -46,14 +46,14 @@ isLineCorruptedOrIllegalAndWhere line =
         reducedLine = init openParenPart ++ tail closingParenPart
 
     -- 2. Compare it with open bracket to the left.
-    in if (null openParenPart) || (null closingParenPart)
+    in if null openParenPart || null closingParenPart
         then Left $ haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart)
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)
             then isLineCorruptedOrIllegalAndWhere reducedLine
             else Right
-                $ (
+                (
                     "Expected open bracket for " ++ show rightParen ++ ", but found " ++ show leftParen ++ " instead.",
                     rightParen
                 )
@@ -75,7 +75,7 @@ getScorePointsForIllegalCharacter '>' = 25137
 getScorePointsForIllegalCharacter _ = error "No such character to lookup."
 
 getTotalSyntaxErrorScore :: [Char] -> Integer
-getTotalSyntaxErrorScore = foldl' (\acc char -> acc + (getScorePointsForIllegalCharacter char)) 0
+getTotalSyntaxErrorScore = foldl' (\acc char -> acc + getScorePointsForIllegalCharacter char) 0
 
 solve :: IO ()
 solve = readFile "input.txt"

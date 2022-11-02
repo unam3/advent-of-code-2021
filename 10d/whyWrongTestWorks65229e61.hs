@@ -9,9 +9,9 @@ why it compiles at all?
                         else maybeErrorString
                     )
                     -- [String] -> [Maybe String]
-                    $ fmap isLineCorruptedAndWhere
-                    -- String -> [String]
-                    $ parseInput testInput
+                    $ isLineCorruptedAndWhere
+                        -- String -> [String]
+                        <$> parseInput testInput
                 )
                 $ pure [
                     Nothing,
@@ -37,22 +37,19 @@ why it compiles at all?
                         else maybeErrorString
                     )
                     -- [String] -> [Maybe String]
-                    $ fmap isLineCorruptedAndWhere
-                    -- String -> [String]
-                    $ parseInput testInput
+                    $ isLineCorruptedAndWhere <$>
+                        -- String -> [String]
+                        parseInput testInput
                 )
-                (
-                    [
-                        Nothing,
-                        Nothing,
-                        Just "Expected open bracket for '}', but found '[' instead.",
-                        Nothing,
-                        Just "Expected open bracket for ')', but found '[' instead.",
-                        Just "Expected open bracket for ']', but found '(' instead.",
-                        Nothing,
-                        Just "Expected open bracket for ')', but found '<' instead.",
-                        Just "Expected open bracket for '>', but found '[' instead.",
-                        Nothing
-                    ]
-                )
-
+                [
+                    Nothing,
+                    Nothing,
+                    Just "Expected open bracket for '}', but found '[' instead.",
+                    Nothing,
+                    Just "Expected open bracket for ')', but found '[' instead.",
+                    Just "Expected open bracket for ']', but found '(' instead.",
+                    Nothing,
+                    Just "Expected open bracket for ')', but found '<' instead.",
+                    Just "Expected open bracket for '>', but found '[' instead.",
+                    Nothing
+                ]
