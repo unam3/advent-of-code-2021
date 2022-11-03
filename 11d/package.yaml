@@ -1,0 +1,24 @@
+name:                11d
+version:             0.1.0.0
+
+dependencies:
+- base == 4.16.3.0
+- containers == 0.6.5.1
+
+ghc-options:
+- -Wall
+
+library:
+  source-dirs:      src
+
+tests:
+  11d-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - 11d
+    - hspec    

@@ -1,0 +1,5 @@
++ what data structures should be used?
+    + Map
+- implement simulateStep
+- given the starting energy levels of the dumbo octopuses in your cavern, simulate N steps and count number of total flashes.
+- 
