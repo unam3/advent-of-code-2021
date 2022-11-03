@@ -1,7 +1,7 @@
 module SyntaxScoring where
 
-import Data.Either (isLeft)
-import Data.List (foldl')
+import Data.Either (isLeft, lefts, rights)
+import Data.List (foldl', sort)
 
 parseInput :: String -> [String]
 parseInput = lines
@@ -96,14 +96,77 @@ getIncompleteLines inputLines =
     let illegalOrCorruptedList = isLineCorruptedOrIllegalAndWhere <$> inputLines
     in filter (isLeft . snd) $ zip inputLines illegalOrCorruptedList
 
+getJustIncompleteLines :: [(String, IllegalOrCorrupted)] -> [String]
+getJustIncompleteLines =
+    fmap snd
+        . lefts
+        . fmap snd
 
-solveTest2 :: IO ()
-solveTest2 = readFile "testInput"
-    >>= print
+
+getChunkClosingCharacter :: Char -> Char
+getChunkClosingCharacter '(' = ')'
+getChunkClosingCharacter '[' = ']'
+getChunkClosingCharacter '{' = '}'
+getChunkClosingCharacter '<' = '>'
+getChunkClosingCharacter char = error $ "no opening character for" ++ show char
+
+getSequenceOfClosingCharacters' :: Either String (String, String) -> Either String (String, String)
+getSequenceOfClosingCharacters' (Right (string@(_:_), closingCharactersAcc)) =
+    let (openParenPart, closingParenPart) = break isClosingChunkCharacter string
+    -- ("[({(<((", "))[]>[[{[]{<()<>>")
+        leftParen = last openParenPart
+        rightParen = head closingParenPart
+        reducedLine = init openParenPart ++ tail closingParenPart
+
+    --in if null openParenPart
+    in if null closingParenPart
+        then getSequenceOfClosingCharacters'
+                $ Right (
+                    init openParenPart,
+                    closingCharactersAcc ++ [getChunkClosingCharacter leftParen]
+                )
+
+        else if isOpenBracketMatchTo (leftParen, rightParen)
+            then getSequenceOfClosingCharacters'
+                    $ Right (
+                        reducedLine,
+                        closingCharactersAcc
+                    )
+            else Left $ "Corrupted input string has no open chunk character match: " ++ string
+
+getSequenceOfClosingCharacters' notNonEmptyRightList = notNonEmptyRightList
+
+getSequenceOfClosingCharacters :: String -> Either String (String, String)
+getSequenceOfClosingCharacters line = getSequenceOfClosingCharacters' $ Right (line, [])
+
+
+getPointValue :: Char -> Int
+getPointValue ')' = 1
+getPointValue ']' = 2
+getPointValue '}' = 3
+getPointValue '>' = 4
+getPointValue unexpectedChar = error $ "has unexpected input char" ++ [unexpectedChar]
+
+getTotalScore' :: Int -> String -> Int
+getTotalScore' =
+    foldl (\ acc' char -> acc' * 5 + getPointValue char)
+
+getTotalScore :: String -> Int
+getTotalScore = getTotalScore' 0
+
+getMiddleScore :: [Int] -> Int
+getMiddleScore scores =
+    let middleScoreIndex = quot (length scores) 2
+    in scores !! middleScoreIndex
+
+
+solvePart2 :: String -> Int
+solvePart2 = 
+    getMiddleScore
+        . sort
+        . fmap (getTotalScore . snd)
+        . rights
+        . fmap getSequenceOfClosingCharacters
+        . getJustIncompleteLines
+        . getIncompleteLines
         . parseInput
-
-solve2 :: IO ()
-solve2 = readFile "input.txt"
-    >>= print
-        . parseInput
-

@@ -22,9 +22,13 @@ TODOs
 
 3. Pt. 2.
     + get incomplete lines
-    - find the completion string for each incomplete line
-        - figure out the sequence of closing characters that complete all open chunks in the line.
+    + find the completion string for each incomplete line:
+        figure out the sequence of closing characters that complete all open chunks in the line.
             + modify IllegalOrCorrupted type to carry incomplete part of the line
-    - score the completion strings
-    - sort the scores
-    - what is the middle score?
+    + score the completion strings
+    + sort the scores
+    + get the middle score
+
+    - run hlint
+
+Return of tuples was probably inessential for to the solution but useful for debugging.

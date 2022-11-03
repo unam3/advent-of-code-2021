@@ -8,7 +8,7 @@ spec :: Spec
 spec = do
     testInput <- runIO $ readFile "testInput"
 
-    --input <- runIO $ readFile "input.txt"
+    input <- runIO $ readFile "input.txt"
 
     describe "criteria for incomplete lines" $ do
         it "is not right"
@@ -106,3 +106,57 @@ spec = do
                         Left ("Illegal line: have no open or closing bracket in (\"<{([\",\"\")", "<{([")
                     ]
                 )
+
+    describe "getSequenceOfClosingCharacters (getSequenceOfClosingCharacters')" $ do
+        it "works for empty input string"
+            $ shouldBe
+                (getSequenceOfClosingCharacters [])
+                (Right ([], []))
+
+        it "works on simplest case"
+            $ shouldBe
+                (getSequenceOfClosingCharacters "{")
+                (Right ([], "}"))
+
+        it "works on simple case"
+            $ shouldBe
+                (getSequenceOfClosingCharacters "{[")
+                (Right ([], "]}"))
+
+        it "works on several adjacent chunks"
+            $ shouldBe
+                (getSequenceOfClosingCharacters "{[]<")
+                (Right ([], ">}"))
+
+        it "returns error if input line is corrupted"
+            $ shouldBe
+                (getSequenceOfClosingCharacters "{<]")
+                (Left $ "Corrupted input string has no open chunk character match: " ++ "{<]")
+
+    describe "getTotalScore" $ do
+        it "works for test input"
+            $ shouldBe
+                (getTotalScore <$> [
+                    "}}]])})]",
+                    ")}>]})",
+                    "}}>}>))))",
+                    "]]}}]}]}>",
+                    "])}>"
+                ])
+                [
+                    288957,
+                    5566,
+                    1480781,
+                    995444,
+                    294
+                ]
+
+    describe "solution for second part of the puzzle" $ do
+        it "works for testInput"
+            $ shouldBe
+                (solvePart2 testInput)
+                288957
+        it "works for input.txt"
+            $ shouldBe
+                (solvePart2 input)
+                2762335572
