@@ -37,7 +37,7 @@ spec = do
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere "{([(<{}[<>[]}>{[]{[(<()>")
                 -- from puzzle text
-                -- (Just "Expected ], but found } instead.")
+                -- "Expected ], but found } instead."
                 (Right ("Expected open bracket for '}', but found '[' instead.", '}'))
 
         it "works for testInput"
@@ -60,9 +60,7 @@ spec = do
         it "works for testInput"
             $ shouldBe
                 (collectCorruptedLinesChar
-                    -- [String] -> [Maybe String]
                     $ isLineCorruptedOrIllegalAndWhere
-                        -- String -> [String]
                         <$> parseInput testInput
                 )
                 [
@@ -78,9 +76,7 @@ spec = do
             $ shouldBe
                 (getTotalSyntaxErrorScore
                     $ collectCorruptedLinesChar
-                    -- [String] -> [Maybe String]
                     $ isLineCorruptedOrIllegalAndWhere
-                        -- String -> [String]
                         <$> parseInput testInput
                 )
                 26397
