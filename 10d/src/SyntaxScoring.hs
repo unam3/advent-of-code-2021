@@ -32,7 +32,7 @@ isOpenBracketMatchTo ('<', '>') = True
 isOpenBracketMatchTo (_, _) = False
 
 
-type IllegalOrCorrupted = Either String (String, Char)
+type IllegalOrCorrupted = Either (String, String) (String, Char)
 
 haveNoOpenOrClosingBracketIn :: String
 haveNoOpenOrClosingBracketIn = "Illegal line: have no open or closing bracket in "
@@ -48,7 +48,10 @@ isLineCorruptedOrIllegalAndWhere line =
 
     -- 2. Compare it with open bracket to the left.
     in if null openParenPart || null closingParenPart
-        then Left $ haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart)
+        then Left (
+            haveNoOpenOrClosingBracketIn ++ show (openParenPart, closingParenPart),
+            openParenPart
+        )
 
     -- 3. Report error or process rest of the input.
         else if isOpenBracketMatchTo (leftParen, rightParen)

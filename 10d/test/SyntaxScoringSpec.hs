@@ -26,7 +26,10 @@ spec = do
         it "reports error for no open or closing bracket case"
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere "{([(<{")
-                (Left $ haveNoOpenOrClosingBracketIn ++ "(\"{([(<{\",\"\")")
+                (Left (
+                    haveNoOpenOrClosingBracketIn ++ "(\"{([(<{\",\"\")",
+                    "{([(<{"
+                ))
 
         it "reports error for mismatched parens"
             $ shouldBe
@@ -44,16 +47,16 @@ spec = do
             $ shouldBe
                 (isLineCorruptedOrIllegalAndWhere <$> parseInput testInput)
                 [
-                    Left "Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")",
-                    Left "Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")",
+                    Left ("Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")", "[({([[{{"),
+                    Left ("Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")", "({[<{("),
                     Right ("Expected open bracket for '}', but found '[' instead.", '}'),
-                    Left "Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")",
+                    Left ("Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")", "((((<{<{{"),
                     Right ("Expected open bracket for ')', but found '[' instead.", ')'),
                     Right ("Expected open bracket for ']', but found '(' instead.", ']'),
-                    Left "Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")",
+                    Left ("Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")", "<{[{[{{[["),
                     Right ("Expected open bracket for ')', but found '<' instead.", ')'),
                     Right ("Expected open bracket for '>', but found '[' instead.", '>'),
-                    Left "Illegal line: have no open or closing bracket in (\"<{([\",\"\")"
+                    Left ("Illegal line: have no open or closing bracket in (\"<{([\",\"\")", "<{([")
                 ]
 
     describe "find corrupted lines" $ do
@@ -96,10 +99,10 @@ spec = do
                         "<{([{{}}[<[[[<>{}]]]>[]]"
                     ]
                     [
-                        Left "Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")",
-                        Left "Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")",
-                        Left "Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")",
-                        Left "Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")",
-                        Left "Illegal line: have no open or closing bracket in (\"<{([\",\"\")"
+                        Left ("Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")", "[({([[{{"),
+                        Left ("Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")", "({[<{("),
+                        Left ("Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")", "((((<{<{{"),
+                        Left ("Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")", "<{[{[{{[["),
+                        Left ("Illegal line: have no open or closing bracket in (\"<{([\",\"\")", "<{([")
                     ]
                 )
