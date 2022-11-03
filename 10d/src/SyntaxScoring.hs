@@ -1,5 +1,6 @@
 module SyntaxScoring where
 
+import Data.Either (isLeft)
 import Data.List (foldl')
 
 parseInput :: String -> [String]
@@ -84,6 +85,14 @@ solve = readFile "input.txt"
         . collectCorruptedLinesChar
         . fmap isLineCorruptedOrIllegalAndWhere
         . parseInput
+
+
+
+getIncompleteLines :: [String] -> [(String, IllegalOrCorrupted)]
+getIncompleteLines inputLines =
+    let illegalOrCorruptedList = isLineCorruptedOrIllegalAndWhere <$> inputLines
+    in filter (isLeft . snd) $ zip inputLines illegalOrCorruptedList
+
 
 solveTest2 :: IO ()
 solveTest2 = readFile "testInput"

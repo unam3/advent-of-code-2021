@@ -80,3 +80,26 @@ spec = do
                         <$> parseInput testInput
                 )
                 26397
+
+    describe "getIncompleteLines" $ do
+        it "works for testInput"
+            $ shouldBe
+                (getIncompleteLines
+                    $ parseInput testInput
+                )
+                (zip
+                    [
+                        "[({(<(())[]>[[{[]{<()<>>",
+                        "[(()[<>])]({[<{<<[]>>(",
+                        "(((({<>}<{<{<>}{[]{[]{}",
+                        "{<[[]]>}<{[{[{[]{()[[[]",
+                        "<{([{{}}[<[[[<>{}]]]>[]]"
+                    ]
+                    [
+                        Left "Illegal line: have no open or closing bracket in (\"[({([[{{\",\"\")",
+                        Left "Illegal line: have no open or closing bracket in (\"({[<{(\",\"\")",
+                        Left "Illegal line: have no open or closing bracket in (\"((((<{<{{\",\"\")",
+                        Left "Illegal line: have no open or closing bracket in (\"<{[{[{{[[\",\"\")",
+                        Left "Illegal line: have no open or closing bracket in (\"<{([\",\"\")"
+                    ]
+                )
