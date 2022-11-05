@@ -1,5 +1,10 @@
 + what data structures should be used?
     + Map
 - implement simulateStep
+    + implement adjacent levels increase
+    + implement filterIncreaseLoop function which is recursive
+    + count total flashes
+    + implement zero 
+    - add tests
 - given the starting energy levels of the dumbo octopuses in your cavern, simulate N steps and count number of total flashes.
 - 

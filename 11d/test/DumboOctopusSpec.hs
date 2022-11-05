@@ -24,8 +24,13 @@ spec = do
                     ((1, 1), 5)
                 ]
 
-    describe "f" $ do
+    describe "increaseAdjacentLevels" $ do
         it "works"
             $ shouldBe
-                42
-                42
+                (increaseAdjacentLevels (parseInput parseInputTestInput) (1,1))
+                $ fromList [
+                    ((0, 0), 3),
+                    ((1, 0), 5),
+                    ((0, 1), 8),
+                    ((1, 1), 5)
+                ]
