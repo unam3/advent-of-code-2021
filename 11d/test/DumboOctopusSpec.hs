@@ -13,7 +13,7 @@ spec = do
 
     simulateStepOutputELShouldBe <- runIO $ readFile "simulateStepOutputELShouldBe"
 
-    simulateStepBiggerInput <- runIO $ readFile "simulateStepBiggerInput"
+    testInput <- runIO $ readFile "testInput"
 
     simulateStepBiggerOutputELShouldBe <- runIO $ readFile "simulateStepBiggerOutputELShouldBe"
 
@@ -73,12 +73,12 @@ spec = do
 
         it "two steps on bigger test data works"
             $ shouldBe
-                (simulateNSteps (parseInput simulateStepBiggerInput, 0) 2)
+                (simulateNSteps (parseInput testInput, 0) 2)
                 (parseInput simulateStepBiggerOutputELShouldBe, 35)
 
         it "hundred steps on bigger test data works"
             $ shouldBe
-                (simulateNSteps (parseInput simulateStepBiggerInput, 0) 100)
+                (simulateNSteps (parseInput testInput, 0) 100)
                 (parseInput simulate100StepsOutputELShouldBe, 1656)
 
     describe "first part of the puzzle solution" $ do
@@ -90,7 +90,7 @@ spec = do
     describe "findFirstStepWhenAllOctopusesFlashWrapper" $ do
         it "works with test data"
             $ shouldBe
-                (findFirstStepWhenAllOctopusesFlashWrapper (parseInput simulateStepBiggerInput, 0) )
+                (findFirstStepWhenAllOctopusesFlashWrapper (parseInput testInput, 0) )
                 195
         it "works with input data"
             $ shouldBe
