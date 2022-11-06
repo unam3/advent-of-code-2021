@@ -47,15 +47,15 @@ spec = do
         it "works for loops"
             $ shouldBe
                 (filterIncreaseLoop 
-                    (fmap (+1)
-                        $ parseInput simulateStepInput)
+                    ((+1)
+                        <$> parseInput simulateStepInput)
                     ([], [(2,2)])
                 )
                 (uncurry filterIncreaseLoop
                     $ uncurry filterIncreaseLoop
                     $ filterIncreaseLoop
-                        (fmap (+1)
-                            $ parseInput simulateStepInput)
+                        ((+1)
+                            <$> parseInput simulateStepInput)
                         ([], [(2,2)])
                 )
 

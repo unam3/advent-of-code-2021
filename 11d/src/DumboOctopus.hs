@@ -1,7 +1,6 @@
 module DumboOctopus where
 
---import Data.Maybe (catMaybes)
---import Text.Read (readMaybe)
+import Data.Bifunctor (second)
 import Data.List ((\\), foldl')
 import Data.Map.Strict (Map, adjust, filter, fromList, keys)
 import Prelude hiding (filter)
@@ -14,13 +13,10 @@ type EnergyLevels = Map (Int, Int) Int
 parseInput :: String -> EnergyLevels
 parseInput = 
     fromList
-        -- rewrite simpler
-        . concat
-        . fmap (\(y, xAndCharList) -> fmap (\(x, char) -> ((x, y), charToInt char)) xAndCharList)
-        . fmap
-            (\ (y, numberString) ->
-                (y, zip [0..] numberString)
-            )
+        -- rewrite simpler?
+        . concatMap (
+            (\(y, xAndCharList) -> fmap (\(x, char) -> ((x, y), charToInt char)) xAndCharList)
+                . second (zip [0..]))
         . zip [0..]
         . lines
 
@@ -50,7 +46,7 @@ filterIncreaseLoop energyLevels (flashedWithoutLastCoords, lastFlashedCoords) =
     -- icrease EL of adjacent to flashed ones octupuses 
     let withIncreasedAdjacentLevels = foldl' increaseAdjacentLevels energyLevels lastFlashedCoords
         -- check for ones that had prev LE below 9 and now it's greater 9
-        withNewFlashes = filter (\ v -> v > 9) withIncreasedAdjacentLevels
+        withNewFlashes = filter (> 9) withIncreasedAdjacentLevels
         -- takes into account previously flashed octopuses
         onlyAdjacentFlashesCoords = (\\ lastFlashedCoords)
             $ (\\) (keys withNewFlashes) flashedWithoutLastCoords
@@ -62,9 +58,9 @@ simulateStep :: State -> State
 simulateStep (energyLevels, totalFlashes) =
     -- the energy level of each octopus increases by 1.
     let increasedEnergyLevels = fmap (+1) energyLevels
-        flashes = filter (\ v -> v > 9) increasedEnergyLevels
-        (newEL, (octopusesThatFlashesThisStep, _)) = filterIncreaseLoop increasedEnergyLevels ([], (keys flashes))
-        newTotalFlashes = totalFlashes + (length octopusesThatFlashesThisStep)
+        flashes = filter (> 9) increasedEnergyLevels
+        (newEL, (octopusesThatFlashesThisStep, _)) = filterIncreaseLoop increasedEnergyLevels ([], keys flashes)
+        newTotalFlashes = totalFlashes + length octopusesThatFlashesThisStep
     in (
         -- zero ctopuses with energy level > 9
         fmap
