@@ -77,6 +77,9 @@ simulateStep (energyLevels, totalFlashes) =
         newTotalFlashes
     )
 
+simulateNSteps :: State -> Int -> State
+simulateNSteps state 0 = state
+simulateNSteps state n = simulateNSteps (simulateStep state) (n - 1)
 
 --solveTest :: IO ()
 --solveTest = readFile "testInput"
