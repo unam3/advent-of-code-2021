@@ -9,7 +9,9 @@ import Prelude hiding (filter)
 charToInt :: Char -> Int
 charToInt = read . (: [])
 
-parseInput :: String -> Map (Int, Int) Int
+type EnergyLevels = Map (Int, Int) Int
+
+parseInput :: String -> EnergyLevels
 parseInput = 
     fromList
         -- rewrite simpler
@@ -22,7 +24,6 @@ parseInput =
         . zip [0..]
         . lines
 
-type EnergyLevels = Map (Int, Int) Int
 type TotalFlashes = Int
 type State = (EnergyLevels, TotalFlashes)
 
