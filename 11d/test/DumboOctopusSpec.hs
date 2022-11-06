@@ -46,12 +46,18 @@ spec = do
     describe "filterIncreaseLoop" $ do
         it "works for loops"
             $ shouldBe
-                (filterIncreaseLoop (fmap (+1)
-                    $ parseInput simulateStepInput) ([], [(2,2)]))
+                (filterIncreaseLoop 
+                    (fmap (+1)
+                        $ parseInput simulateStepInput)
+                    ([], [(2,2)])
+                )
                 (uncurry filterIncreaseLoop
                     $ uncurry filterIncreaseLoop
-                    $ filterIncreaseLoop (fmap (+1)
-                    $ parseInput simulateStepInput) ([], [(2,2)]))
+                    $ filterIncreaseLoop
+                        (fmap (+1)
+                            $ parseInput simulateStepInput)
+                        ([], [(2,2)])
+                )
 
     describe "simulateStep" $ do
         it "first step on test data"
