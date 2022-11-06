@@ -13,6 +13,10 @@ spec = do
 
     simulateStepOutputELShouldBe <- runIO $ readFile "simulateStepOutputELShouldBe"
 
+    simulateStepBiggerInput <- runIO $ readFile "simulateStepBiggerInput"
+
+    simulateStepBiggerOutputELShouldBe <- runIO $ readFile "simulateStepBiggerOutputELShouldBe"
+
     --testInput <- runIO $ readFile "testInput"
 
     --input <- runIO $ readFile "input.txt"
@@ -54,3 +58,9 @@ spec = do
             $ shouldBe
                 (simulateStep (parseInput simulateStepInput, 0))
                 (parseInput simulateStepOutputELShouldBe, 9)
+
+        it "two steps on bigger test data works"
+            $ shouldBe
+                (simulateStep
+                    $ simulateStep (parseInput simulateStepBiggerInput, 0))
+                (parseInput simulateStepBiggerOutputELShouldBe, 35)
