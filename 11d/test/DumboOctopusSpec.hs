@@ -11,6 +11,8 @@ spec = do
 
     simulateStepInput <- runIO $ readFile "simulateStepInput"
 
+    simulateStepOutputELShouldBe <- runIO $ readFile "simulateStepOutputELShouldBe"
+
     --testInput <- runIO $ readFile "testInput"
 
     --input <- runIO $ readFile "input.txt"
@@ -47,8 +49,8 @@ spec = do
                     $ filterIncreaseLoop (fmap (+1)
                     $ parseInput simulateStepInput) ([], [(2,2)]))
 
-    --describe "simulateStep" $ do
-    --    it "works on test data"
-    --        $ shouldBe
-    --            (simulateStep (parseInput simulateStepInput, 0))
-    --            (parseInput simulateStepOutputELShouldBe, 9)
+    describe "simulateStep" $ do
+        it "first step on test data works"
+            $ shouldBe
+                (simulateStep (parseInput simulateStepInput, 0))
+                (parseInput simulateStepOutputELShouldBe, 9)

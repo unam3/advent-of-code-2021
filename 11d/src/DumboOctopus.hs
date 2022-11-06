@@ -3,7 +3,7 @@ module DumboOctopus where
 --import Data.Maybe (catMaybes)
 --import Text.Read (readMaybe)
 import Data.List ((\\), foldl')
-import Data.Map.Strict (Map, adjust, filter, fromList, keys, size)
+import Data.Map.Strict (Map, adjust, filter, fromList, keys)
 import Prelude hiding (filter)
 
 charToInt :: Char -> Int
@@ -58,26 +58,24 @@ filterIncreaseLoop energyLevels (flashedWithoutLastCoords, lastFlashedCoords) =
         withIncreasedAdjacentLevels
         (flashedWithoutLastCoords ++ lastFlashedCoords , onlyAdjacentFlashesCoords)
 
---simulateStep :: State -> State
---simulateStep (energyLevels, totalFlashes) =
---    -- the energy level of each octopus increases by 1.
---    let increasedEnergyLevels = fmap (+1) energyLevels
---        flashes = filter (\ v -> v > 9) increasedEnergyLevels
---        newEL = filterIncreaseLoop increasedEnergyLevels (keys flashes)
---        -- count number of octopuses with energy level > 9 and add to totalFlashes
---        octopusesThatFlashesThisStep = filter (\ v -> v > 9) newEL
---        newTotalFlashes = totalFlashes + (size $ octopusesThatFlashesThisStep)
---    in (
---        -- zero ctopuses with energy level > 9
---        fmap
---            (\ energyLevel -> 
---                if energyLevel > 9
---                then 0
---                else energyLevel
---            )
---            newEL,
---        newTotalFlashes
---    )
+simulateStep :: State -> State
+simulateStep (energyLevels, totalFlashes) =
+    -- the energy level of each octopus increases by 1.
+    let increasedEnergyLevels = fmap (+1) energyLevels
+        flashes = filter (\ v -> v > 9) increasedEnergyLevels
+        (newEL, (octopusesThatFlashesThisStep, _)) = filterIncreaseLoop increasedEnergyLevels ([], (keys flashes))
+        newTotalFlashes = totalFlashes + (length octopusesThatFlashesThisStep)
+    in (
+        -- zero ctopuses with energy level > 9
+        fmap
+            (\ energyLevel -> 
+                if energyLevel > 9
+                then 0
+                else energyLevel
+            )
+            newEL,
+        newTotalFlashes
+    )
 
 
 --solveTest :: IO ()
