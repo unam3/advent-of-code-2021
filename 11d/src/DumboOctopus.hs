@@ -44,36 +44,40 @@ increaseAdjacentLevels energyLevels (x, y) =
         energyLevels
         adjacentPositionFunctions
 
-filterIncreaseLoop :: EnergyLevels -> [(Int, Int)] -> EnergyLevels
-filterIncreaseLoop energyLevels [] = energyLevels
-filterIncreaseLoop energyLevels flashesCoords =
+filterIncreaseLoop :: EnergyLevels -> ([(Int, Int)], [(Int, Int)]) -> (EnergyLevels, ([(Int, Int)], [(Int, Int)]))
+filterIncreaseLoop energyLevels coords@(_, []) = (energyLevels, coords)
+filterIncreaseLoop energyLevels (flashedWithoutLastCoords, lastFlashedCoords) =
     -- icrease EL of adjacent to flashed ones octupuses 
-    let withIncreasedAdjacentLevels = foldl' increaseAdjacentLevels energyLevels flashesCoords
+    let withIncreasedAdjacentLevels = foldl' increaseAdjacentLevels energyLevels lastFlashedCoords
         -- check for ones that had prev LE below 9 and now it's greater 9
         withNewFlashes = filter (\ v -> v > 9) withIncreasedAdjacentLevels
-        onlyAdjacentFlashesCoords = (\\) (keys withNewFlashes) flashesCoords
-    in filterIncreaseLoop withNewFlashes onlyAdjacentFlashesCoords
+        -- takes into account previously flashed octopuses
+        onlyAdjacentFlashesCoords = (\\ lastFlashedCoords)
+            $ (\\) (keys withNewFlashes) flashedWithoutLastCoords
+    in filterIncreaseLoop
+        withIncreasedAdjacentLevels
+        (flashedWithoutLastCoords ++ lastFlashedCoords , onlyAdjacentFlashesCoords)
 
-simulateStep :: State -> State
-simulateStep (energyLevels, totalFlashes) =
-    -- the energy level of each octopus increases by 1.
-    let increasedEnergyLevels = fmap (+1) energyLevels
-        flashes = filter (\ v -> v > 9) increasedEnergyLevels
-        newEL = filterIncreaseLoop increasedEnergyLevels (keys flashes)
-        -- count number of octopuses with energy level > 9 and add to totalFlashes
-        octopusesThatFlashesThisStep = filter (\ v -> v > 9) newEL
-        newTotalFlashes = totalFlashes + (size $ octopusesThatFlashesThisStep)
-    in (
-        -- zero ctopuses with energy level > 9
-        fmap
-            (\ energyLevel -> 
-                if energyLevel > 9
-                then 0
-                else energyLevel
-            )
-            newEL,
-        newTotalFlashes
-    )
+--simulateStep :: State -> State
+--simulateStep (energyLevels, totalFlashes) =
+--    -- the energy level of each octopus increases by 1.
+--    let increasedEnergyLevels = fmap (+1) energyLevels
+--        flashes = filter (\ v -> v > 9) increasedEnergyLevels
+--        newEL = filterIncreaseLoop increasedEnergyLevels (keys flashes)
+--        -- count number of octopuses with energy level > 9 and add to totalFlashes
+--        octopusesThatFlashesThisStep = filter (\ v -> v > 9) newEL
+--        newTotalFlashes = totalFlashes + (size $ octopusesThatFlashesThisStep)
+--    in (
+--        -- zero ctopuses with energy level > 9
+--        fmap
+--            (\ energyLevel -> 
+--                if energyLevel > 9
+--                then 0
+--                else energyLevel
+--            )
+--            newEL,
+--        newTotalFlashes
+--    )
 
 
 --solveTest :: IO ()

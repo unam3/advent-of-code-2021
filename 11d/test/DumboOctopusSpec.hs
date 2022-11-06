@@ -9,7 +9,9 @@ spec :: Spec
 spec = do
     parseInputTestInput <- runIO $ readFile "parseInputTestInput"
 
-    testInput <- runIO $ readFile "testInput"
+    simulateStepInput <- runIO $ readFile "simulateStepInput"
+
+    --testInput <- runIO $ readFile "testInput"
 
     --input <- runIO $ readFile "input.txt"
 
@@ -34,3 +36,19 @@ spec = do
                     ((0, 1), 8),
                     ((1, 1), 5)
                 ]
+
+    describe "filterIncreaseLoop" $ do
+        it "works for loops"
+            $ shouldBe
+                (filterIncreaseLoop (fmap (+1)
+                    $ parseInput simulateStepInput) ([], [(2,2)]))
+                (uncurry filterIncreaseLoop
+                    $ uncurry filterIncreaseLoop
+                    $ filterIncreaseLoop (fmap (+1)
+                    $ parseInput simulateStepInput) ([], [(2,2)]))
+
+    --describe "simulateStep" $ do
+    --    it "works on test data"
+    --        $ shouldBe
+    --            (simulateStep (parseInput simulateStepInput, 0))
+    --            (parseInput simulateStepOutputELShouldBe, 9)
