@@ -9,5 +9,5 @@
         + first step
         + 2 steps for bigger test input
 + implement n-steps support for simulateStep
-- given the starting energy levels of the dumbo octopuses in your cavern, simulate N steps and count number of total flashes.
++ given the starting energy levels of the dumbo octopuses in your cavern, simulate N steps and count number of total flashes.
 - 

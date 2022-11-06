@@ -81,16 +81,9 @@ simulateNSteps :: State -> Int -> State
 simulateNSteps state 0 = state
 simulateNSteps state n = simulateNSteps (simulateStep state) (n - 1)
 
---solveTest :: IO ()
---solveTest = readFile "testInput"
---    >>= print
---        . parseInput
---
---solve :: IO ()
---solve = readFile "input.txt"
---    >>= print
---        . parseInput
---
+solve :: String -> State
+solve inputString = simulateNSteps (parseInput inputString, 0) 100
+
 --solveTest2 :: IO ()
 --solveTest2 = readFile "testInput"
 --    >>= print

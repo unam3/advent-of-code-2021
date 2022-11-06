@@ -19,9 +19,7 @@ spec = do
 
     simulate100StepsOutputELShouldBe <- runIO $ readFile "simulate100StepsOutputELShouldBe"
 
-    --testInput <- runIO $ readFile "testInput"
-
-    --input <- runIO $ readFile "input.txt"
+    input <- runIO $ readFile "input.txt"
 
     describe "parseInput" $ do
         it "works"
@@ -76,3 +74,9 @@ spec = do
             $ shouldBe
                 (simulateNSteps (parseInput simulateStepBiggerInput, 0) 100)
                 (parseInput simulate100StepsOutputELShouldBe, 1656)
+
+    describe "first part of the puzzle solution" $ do
+        it "is"
+            $ shouldBe
+                (snd $ solve input)
+                1747
