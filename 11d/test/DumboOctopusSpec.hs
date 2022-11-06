@@ -86,3 +86,14 @@ spec = do
             $ shouldBe
                 (snd $ solve input)
                 1747
+
+    describe "findFirstStepWhenAllOctopusesFlashWrapper" $ do
+        it "works with test data"
+            $ shouldBe
+                (findFirstStepWhenAllOctopusesFlashWrapper (parseInput simulateStepBiggerInput, 0) )
+                195
+        it "works with input data"
+            $ shouldBe
+                (findFirstStepWhenAllOctopusesFlashWrapper (parseInput input, 0) )
+                505
+

@@ -2,7 +2,7 @@ module DumboOctopus where
 
 import Data.Bifunctor (second)
 import Data.List ((\\), foldl')
-import Data.Map.Strict (Map, adjust, filter, fromList, keys)
+import Data.Map.Strict (Map, adjust, filter, fromList, keys, size)
 import Prelude hiding (filter)
 
 charToInt :: Char -> Int
@@ -80,13 +80,16 @@ simulateNSteps state n = simulateNSteps (simulateStep state) (n - 1)
 solve :: String -> State
 solve inputString = simulateNSteps (parseInput inputString, 0) 100
 
---solveTest2 :: IO ()
---solveTest2 = readFile "testInput"
---    >>= print
---        . parseInput
---
---solve2 :: IO ()
---solve2 = readFile "input.txt"
---    >>= print
---        . parseInput
---
+
+findFirstStepWhenAllOctopusesFlash :: State -> Int -> Int
+findFirstStepWhenAllOctopusesFlash state step =
+    let newState@(newEnergyLevels, _) = simulateStep state
+        numberOfFlashedOctopuses = size $ filter (== 0) newEnergyLevels
+        numberOfAllOctopuses = size newEnergyLevels
+        thisStepNumber = step + 1
+    in if numberOfFlashedOctopuses == numberOfAllOctopuses
+        then thisStepNumber
+        else findFirstStepWhenAllOctopusesFlash newState thisStepNumber
+
+findFirstStepWhenAllOctopusesFlashWrapper :: State -> Int
+findFirstStepWhenAllOctopusesFlashWrapper state = findFirstStepWhenAllOctopusesFlash state 0

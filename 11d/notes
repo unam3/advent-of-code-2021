@@ -10,4 +10,14 @@
         + 2 steps for bigger test input
 + implement n-steps support for simulateStep
 + given the starting energy levels of the dumbo octopuses in your cavern, simulate N steps and count number of total flashes.
-- 
+
+Part 2. What is the first step during which all octopuses flash?
+
++ How we can find it out?
+    + check all the values of the EnergyLevels map.
+        does not require modification of simulateStep
+        potentially less performant
+
+    x count number of flashes at the end of the step: length octopusesThatFlashesThisStep.
+        ! require modification of simulateStep
+        - pass a break function into simulateStep
