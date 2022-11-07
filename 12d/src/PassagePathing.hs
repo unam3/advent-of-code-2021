@@ -1,8 +1,10 @@
 module PassagePathing where
 
 import Data.Bifunctor (second)
-import Data.List (foldl', union)
-import Data.Map.Strict (Map, empty, insertWith)
+import Data.Char (isUpper)
+import Data.List (elemIndex, foldl', union)
+import Data.Map.Strict (Map, (!), empty, insertWith)
+import Data.Maybe (isJust)
 import Prelude hiding (map)
 
 
@@ -10,6 +12,8 @@ normalize :: (String, String) -> (String, String)
 normalize (string, "start") = ("start", string)
 normalize ("end", string) = (string, "end")
 normalize tuple = tuple
+
+type Relations = Map String [String]
 
 parseInput :: String -> Map String [String]
 parseInput =
@@ -32,7 +36,34 @@ parseInput =
         . lines
 
 
+type Path = [String]
 
+areAllCapitals :: String -> Bool
+areAllCapitals = all isUpper
+
+areAllLower :: String -> Bool
+areAllLower = not . areAllCapitals
+
+constructPaths :: Path -> Relations -> [Path]
+constructPaths path relations  =
+    let availableParts = relations ! (head path)
+        -- if available part isAllLower and already in Path then we should discard it
+        filterVisitedSmallCaves =
+            filter
+                (\ part -> areAllLower part && (isJust $ elemIndex part path))
+        connectedParts = fmap (\ part -> part : path) $ filterVisitedSmallCaves availableParts
+    in fmap
+        (\ updatedPath ->
+            if head updatedPath == "end" 
+            then updatedPath
+            -- is concat what we need here?
+            else concat $ constructPaths updatedPath relations
+        )
+        connectedParts
+
+constructPathsWrapper :: Relations -> [Path]
+-- always starts with "start"
+constructPathsWrapper = constructPaths ["start"]
 
 solveTest :: IO ()
 solveTest = readFile "testInput"

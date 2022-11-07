@@ -16,13 +16,15 @@ spec = do
     --input <- runIO $ readFile "input.txt"
 
     describe "parseInput" $ do
-        it "works"
+        it ""
             $ shouldBe
-                (parseInput testInput)
-                $ fromList []
+                (parseInput "a-start\na-b\nend-b")
+                $ fromList [("a",["b"]),("b",["end","a"]),("start",["a"])]
 
-    describe "f" $ do
-        it "works"
+    describe "constructPaths(Wrapper)" $ do
+        it "construct simplest paths"
             $ shouldBe
-                42
-                42
+                (constructPathsWrapper  
+                    $ parseInput "a-start\na-b\nend-b"
+                )
+                [["start", "a", "b", "end"]]

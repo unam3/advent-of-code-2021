@@ -7,7 +7,7 @@ How to represent input data as possible paths?
     · if one part is "start" then we only should add "start" to "x" relation
     · if one part is "end" then we only should add "x" to "end" relation
     · otherwise add mutual relations
-- beware of cycles and dead ends
-
-
-
+- implement path making function
+    + been able to distinguish capitalized strings (big caves) from relular one (small caves)
+    - exclude paths which does not reach "end": start-A-b
+    - beware of cycles
