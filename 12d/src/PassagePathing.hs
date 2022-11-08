@@ -4,7 +4,7 @@ import Data.Bifunctor (second)
 import Data.Char (isUpper)
 import Data.List (elemIndex, foldl', union)
 import Data.Map.Strict (Map, (!), empty, insertWith)
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust)
 import Prelude hiding (map)
 
 
@@ -44,25 +44,20 @@ areAllCapitals = all isUpper
 areAllLower :: String -> Bool
 areAllLower = not . areAllCapitals
 
-constructPaths :: Path -> Relations -> [Path]
+constructPaths :: Path -> Relations -> [(Path, Path)]
 constructPaths path relations  =
     let availableParts = relations ! (head path)
         -- if available part isAllLower and already in Path then we should discard it
         filterVisitedSmallCaves =
             filter
-                (\ part -> areAllLower part && (isNothing $ elemIndex part path))
+                (\ part -> not (areAllLower part && (isJust $ elemIndex part path)))
         connectedParts = fmap (\ part -> part : path) $ filterVisitedSmallCaves availableParts
-    in fmap
-        (\ updatedPath ->
-            if head updatedPath == "end" 
-            then updatedPath
-            else concat $ constructPaths updatedPath relations
-        )
-        connectedParts
+    in [(path, concat connectedParts)]
+        
 
-constructPathsWrapper :: Relations -> [Path]
+constructPathsWrapper :: Relations -> [(Path, Path)]
 -- always starts with "start"
-constructPathsWrapper = fmap (fmap reverse) $ constructPaths ["start"]
+constructPathsWrapper = constructPaths ["start"]
 
 solveTest :: IO ()
 solveTest = readFile "testInput"
