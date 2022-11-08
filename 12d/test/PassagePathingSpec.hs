@@ -25,6 +25,13 @@ spec = do
         it "construct simplest paths"
             $ shouldBe
                 (constructPathsWrapper  
+                    -- fromList [("a",["b"]),("b",["end","a"]),("start",["a"])]
                     $ parseInput "a-start\na-b\nend-b"
+                )
+                [["start", "a", "b", "end"]]
+        it "construct paths for first testInput"
+            $ shouldBe
+                (constructPathsWrapper  
+                    $ parseInput testInput
                 )
                 [["start", "a", "b", "end"]]
