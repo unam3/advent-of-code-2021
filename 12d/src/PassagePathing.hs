@@ -3,7 +3,7 @@ module PassagePathing where
 import Data.Bifunctor (second)
 import Data.Char (isUpper)
 import Data.List (elemIndex, foldl', union)
-import Data.Map.Strict (Map, (!), empty, filterWithKey, insertWith)
+import Data.Map.Strict (Map, (!), empty, insertWith)
 import Data.Maybe (isJust)
 import Prelude hiding (map)
 
@@ -17,15 +17,6 @@ type Relations = Map String [String]
 
 parseInput :: String -> Map String [String]
 parseInput =
-    --filterWithKey
-    --    (\ k v ->
-    --        not (
-    --            areAllLower k && length v == 1
-    --            && k /= "start"
-    --            && v /= ["end"]
-    --        )
-    --    )
-    --    . foldl'
         foldl'
             (\ map (leftPart, rightPart) ->
                 -- if one part is "start" then we only should add "start" to "x" relation

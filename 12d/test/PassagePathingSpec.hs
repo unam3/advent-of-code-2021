@@ -18,7 +18,7 @@ spec = do
 
     testInput3 <- runIO $ readFile "testInput3"
 
-    --input <- runIO $ readFile "input.txt"
+    input <- runIO $ readFile "input.txt"
 
     describe "parseInput" $ do
         it ""
@@ -53,3 +53,7 @@ spec = do
             $ shouldBe
                 (length $ constructPathsWrapper $ parseInput testInput3)
                 226
+        it "construct right number of paths for input"
+            $ shouldBe
+                (length $ constructPathsWrapper $ parseInput input)
+                4167

@@ -7,7 +7,7 @@ How to represent input data as possible paths?
     · if one part is "start" then we only should add "start" to "x" relation
     · if one part is "end" then we only should add "x" to "end" relation
     · otherwise add mutual relations
-- implement path making function: constructPaths
++ implement path making function: constructPaths
     + been able to distinguish capitalized strings (big caves) from relular one (small caves)
     + remove recursion and debug manually
         + why on the first iteration we're having the empty connectedParts? wrong logic in filter function
@@ -16,4 +16,4 @@ How to represent input data as possible paths?
         x if all-lower cave connects to only all-lower cave then exclude it from Relations
             - filter out all lower keys from Relations which have only one all lower connection
         + exclude from the output of constructPaths(Wrapper)
-    - beware of cycles?
+    x beware of cycles?
