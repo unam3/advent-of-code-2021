@@ -24,6 +24,8 @@ How to represent input data as possible paths?
         - fold over them with modified constructPaths
     - modify input so we could emulate reaching one small cave twice
         + get all small caves from (parsed) input
-        - use fmap to modify parsed input so we could emulate visiting small cave twice:
-            - for b from testInput we could create b1 with same relations as b
+        - modify parsed input so we could emulate visiting small cave twice:
+            - for b from testInput we could create b1 with same relations as b:
+                + duplicate relations with copiyng list of b-to-relations
+                - add b1 to relations where b can make connection
         - use set difference (\\?) to filter out results of consequent constructPaths calls from foldl accumulator

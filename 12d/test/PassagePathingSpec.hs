@@ -62,3 +62,19 @@ spec = do
             $ shouldBe
                 (getSmallCavesNames $ parseInput "a-start\na-b\nend-b")
                 ["a", "b"]
+
+    describe "modifyRelationsToVisitSmallCaveTwice" $ do
+        it ""
+            $ shouldBe
+                {-
+
+                     start                start    
+                       |                  /   \    
+                       a       ->        a-----a1  
+                      |                  \   /    
+                      b                    b
+                     |                     |
+                    end                   end
+                -}
+                (modifyRelationsToVisitSmallCaveTwice (parseInput "a-start\na-b\nend-b") "a")
+                $ fromList [("a",["b"]),("asecond",["b"]),("b",["end","a", "asecond"]),("start",["a", "asecond"])]

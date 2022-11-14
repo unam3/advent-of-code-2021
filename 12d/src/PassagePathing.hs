@@ -3,7 +3,7 @@ module PassagePathing where
 import Data.Bifunctor (second)
 import Data.Char (isUpper)
 import Data.List (elemIndex, foldl', union)
-import Data.Map.Strict (Map, (!), empty, insertWith, keys)
+import Data.Map.Strict (Map, (!), empty, insert, insertWith, keys)
 import Data.Maybe (isJust)
 import Prelude hiding (map)
 
@@ -71,6 +71,13 @@ constructPathsWrapper = fmap (fmap reverse) $ constructPaths ["start"]
 
 getSmallCavesNames :: Relations -> [String]
 getSmallCavesNames = filter (\ key -> key /= "start" && areAllLower key) . keys
+
+modifyRelationsToVisitSmallCaveTwice :: Relations -> String -> Relations
+modifyRelationsToVisitSmallCaveTwice relations smallCaveName =
+    insert
+        (smallCaveName ++ "second")
+        (relations ! smallCaveName)
+        relations
 
 collectTwiceVisitResults :: Relations -> [Path]
 collectTwiceVisitResults relations =
