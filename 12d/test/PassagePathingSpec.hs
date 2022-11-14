@@ -56,3 +56,9 @@ spec = do
             $ shouldBe
                 (length $ constructPathsWrapper $ parseInput input)
                 4167
+
+    describe "getSmallCavesNames" $ do
+        it "returns small cave names list"
+            $ shouldBe
+                (getSmallCavesNames $ parseInput "a-start\na-b\nend-b")
+                ["a", "b"]

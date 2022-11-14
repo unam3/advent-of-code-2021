@@ -23,7 +23,7 @@ How to represent input data as possible paths?
         - collect small cave names
         - fold over them with modified constructPaths
     - modify input so we could emulate reaching one small cave twice
-        - get all small caves from (parsed) input
+        + get all small caves from (parsed) input
         - use fmap to modify parsed input so we could emulate visiting small cave twice:
             - for b from testInput we could create b1 with same relations as b
         - use set difference (\\?) to filter out results of consequent constructPaths calls from foldl accumulator

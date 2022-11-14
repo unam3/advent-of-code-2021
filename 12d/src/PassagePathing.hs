@@ -3,7 +3,7 @@ module PassagePathing where
 import Data.Bifunctor (second)
 import Data.Char (isUpper)
 import Data.List (elemIndex, foldl', union)
-import Data.Map.Strict (Map, (!), empty, insertWith)
+import Data.Map.Strict (Map, (!), empty, insertWith, keys)
 import Data.Maybe (isJust)
 import Prelude hiding (map)
 
@@ -63,27 +63,17 @@ constructPaths path relations  =
         connectedParts
 
 
+
+
 constructPathsWrapper :: Relations -> [Path]
 -- always starts with "start"
 constructPathsWrapper = fmap (fmap reverse) $ constructPaths ["start"]
 
-solveTest :: IO ()
-solveTest = readFile "testInput"
-    >>= print
-        . parseInput
+getSmallCavesNames :: Relations -> [String]
+getSmallCavesNames = filter (\ key -> key /= "start" && areAllLower key) . keys
 
-solve :: IO ()
-solve = readFile "input.txt"
-    >>= print
-        . parseInput
-
-solveTest2 :: IO ()
-solveTest2 = readFile "testInput"
-    >>= print
-        . parseInput
-
-solve2 :: IO ()
-solve2 = readFile "input.txt"
-    >>= print
-        . parseInput
-
+collectTwiceVisitResults :: Relations -> [Path]
+collectTwiceVisitResults relations =
+    let smallCavesNames = getSmallCavesNames relations
+        --foldl' (\  -> : acc) [] $ 
+    in undefined
