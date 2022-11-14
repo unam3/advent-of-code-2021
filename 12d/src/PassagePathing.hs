@@ -74,10 +74,17 @@ getSmallCavesNames = filter (\ key -> key /= "start" && areAllLower key) . keys
 
 modifyRelationsToVisitSmallCaveTwice :: Relations -> String -> Relations
 modifyRelationsToVisitSmallCaveTwice relations smallCaveName =
-    insert
-        (smallCaveName ++ "second")
-        (relations ! smallCaveName)
-        relations
+    let twinName = smallCaveName ++ "second"
+    in fmap 
+        (\ keyToRelations ->
+            if elem smallCaveName keyToRelations
+            then twinName : keyToRelations
+            else keyToRelations
+        )
+        $ insert
+            twinName
+            (relations ! smallCaveName)
+            relations
 
 collectTwiceVisitResults :: Relations -> [Path]
 collectTwiceVisitResults relations =

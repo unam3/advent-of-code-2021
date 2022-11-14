@@ -77,4 +77,4 @@ spec = do
                     end                   end
                 -}
                 (modifyRelationsToVisitSmallCaveTwice (parseInput "a-start\na-b\nend-b") "a")
-                $ fromList [("a",["b"]),("asecond",["b"]),("b",["end","a", "asecond"]),("start",["a", "asecond"])]
+                $ fromList [("a",["b"]),("asecond",["b"]),("b",["asecond","end","a"]),("start",["asecond","a"])]
