@@ -11,10 +11,9 @@ How to represent input data as possible paths?
     + been able to distinguish capitalized strings (big caves) from relular one (small caves)
     + remove recursion and debug manually
         + why on the first iteration we're having the empty connectedParts? wrong logic in filter function
-        - chain constructPaths calls
+        + chain constructPaths calls
     + exclude paths which does not reach "end": start-b-d
         x if all-lower cave connects to only all-lower cave then exclude it from Relations
             - filter out all lower keys from Relations which have only one all lower connection
         + exclude from the output of constructPaths(Wrapper)
-            
     - beware of cycles
