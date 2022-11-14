@@ -53,7 +53,8 @@ areAllCapitals = all isUpper
 areAllLower :: String -> Bool
 areAllLower = not . areAllCapitals
 
-constructPaths :: Path -> Relations -> (Path, [Path])
+constructPaths :: Path -> Relations -> [Path]
+constructPaths paths@("end":_) _  = [paths]
 constructPaths path relations  =
     let availableParts = relations ! (head path)
         -- if available part isAllLower and already in Path then we should discard it
@@ -61,21 +62,19 @@ constructPaths path relations  =
             filter
                 (\ part -> not (areAllLower part && (isJust $ elemIndex part path)))
         connectedParts = fmap (\ part -> part : path) $ filterVisitedSmallCaves availableParts
-    in (path, connectedParts)
+    in foldl'
+        (\ acc updatedPath ->
+            if head updatedPath == "end" 
+            then updatedPath : acc
+            else (constructPaths updatedPath relations) ++ acc
+        )
+        []
+        connectedParts
 
 
---    in fmap
---        (\ updatedPath ->
---            if head updatedPath == "end" 
---            then updatedPath
---            else concat $ constructPaths updatedPath relations
---        )
---        connectedParts
-
-
-constructPathsWrapper :: Relations -> (Path, [Path])
+constructPathsWrapper :: Relations -> [Path]
 -- always starts with "start"
-constructPathsWrapper = constructPaths ["start"]
+constructPathsWrapper = fmap (fmap reverse) $ constructPaths ["start"]
 
 solveTest :: IO ()
 solveTest = readFile "testInput"
