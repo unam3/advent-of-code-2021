@@ -7,8 +7,7 @@ import PassagePathing
 
 constructMore :: [Path] -> String -> [Path]
 constructMore constructPathsResults input =
-    concat
-        $ fmap (\ path -> constructPaths path (parseInput input)) constructPathsResults
+    concatMap (\ path -> constructPaths path (parseInput input)) constructPathsResults
 
 spec :: Spec
 spec = do

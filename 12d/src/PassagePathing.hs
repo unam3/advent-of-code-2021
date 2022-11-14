@@ -51,8 +51,8 @@ constructPaths path relations  =
         -- if available part isAllLower and already in Path then we should discard it
         filterVisitedSmallCaves =
             filter
-                (\ part -> not (areAllLower part && (isJust $ elemIndex part path)))
-        connectedParts = fmap (\ part -> part : path) $ filterVisitedSmallCaves availableParts
+                (\ part -> not (areAllLower part && isJust (elemIndex part path)))
+        connectedParts = (: path) <$> filterVisitedSmallCaves availableParts
     in foldl'
         (\ acc updatedPath ->
             if head updatedPath == "end" 
