@@ -16,4 +16,4 @@ How to represent input data as possible paths?
         x if all-lower cave connects to only all-lower cave then exclude it from Relations
             - filter out all lower keys from Relations which have only one all lower connection
         + exclude from the output of constructPaths(Wrapper)
-    - beware of cycles
+    - beware of cycles?

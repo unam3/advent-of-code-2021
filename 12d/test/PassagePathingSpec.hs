@@ -16,7 +16,7 @@ spec = do
 
     testInput2 <- runIO $ readFile "testInput2"
 
-    --testInput3 <- runIO $ readFile "testInput3"
+    testInput3 <- runIO $ readFile "testInput3"
 
     --input <- runIO $ readFile "input.txt"
 
@@ -49,3 +49,7 @@ spec = do
             $ shouldBe
                 (constructPathsWrapper $ parseInput testInput2)
                 [["start","HN","dc","end"],["start","HN","dc","HN","end"],["start","HN","dc","HN","kj","HN","end"],["start","HN","dc","kj","HN","end"],["start","HN","end"],["start","HN","kj","HN","dc","end"],["start","HN","kj","HN","dc","HN","end"],["start","HN","kj","HN","end"],["start","HN","kj","dc","end"],["start","HN","kj","dc","HN","end"],["start","kj","HN","dc","end"],["start","kj","HN","dc","HN","end"],["start","kj","HN","end"],["start","kj","dc","end"],["start","kj","dc","HN","end"],["start","dc","end"],["start","dc","HN","end"],["start","dc","HN","kj","HN","end"],["start","dc","kj","HN","end"]]
+        it "construct right number of paths for testInput3"
+            $ shouldBe
+                (length $ constructPathsWrapper $ parseInput testInput3)
+                226
