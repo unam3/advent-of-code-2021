@@ -17,3 +17,13 @@ How to represent input data as possible paths?
             - filter out all lower keys from Relations which have only one all lower connection
         + exclude from the output of constructPaths(Wrapper)
     x beware of cycles?
+- given current implementation how we can wisit each small caves twice and collect these paths?
+    x pass small cave name into constructPaths (Maybe String) to visit it twice?
+        - analyze parsed input
+        - collect small cave names
+        - fold over them with modified constructPaths
+    - modify input so we could emulate reaching one small cave twice
+        - get all small caves from (parsed) input
+        - use fmap to modify parsed input so we could emulate visiting small cave twice:
+            - for b from testInput we could create b1 with same relations as b
+        - use set difference (\\?) to filter out results of consequent constructPaths calls from foldl accumulator
