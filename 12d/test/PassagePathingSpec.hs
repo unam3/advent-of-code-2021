@@ -27,6 +27,13 @@ spec = do
                 $ fromList [("a",["b"]),("b",["end","a"]),("start",["a"])]
 
     describe "constructPaths(Wrapper)" $ do
+        it "exclude paths which does not reach \"end\": start-b-d"
+            $ shouldBe
+                (constructPathsWrapper
+                    -- fromList [("a",["b"]),("b",["end","a"]),("start",["a"])]
+                    $ parseInput "a-start\na-b"
+                )
+                []
         it "constructs test path"
             $ shouldBe
                 (constructPathsWrapper
