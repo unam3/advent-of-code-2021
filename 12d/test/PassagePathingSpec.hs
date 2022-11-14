@@ -94,3 +94,33 @@ spec = do
                     $ modifyRelationsToVisitSmallCaveTwice (parseInput "start-A\nstart-b\nA-b\nb-d\nA-end\nb-end") "b"
                 )
                 [["start", "A", "b", "A", "end"], ["start", "A", "b", "A", "b", "A", "end"], ["start", "A", "b", "A", "b", "end"], ["start", "A", "b", "d", "b", "A", "end"], ["start", "A", "b", "d", "b", "end"], ["start", "A", "b", "end"], ["start", "A", "end"], ["start", "b", "A", "end"], ["start", "b", "A", "b", "A", "end"], ["start", "b", "A", "b", "end"], ["start", "b", "d", "b", "A", "end"], ["start", "b", "d", "b", "end"], ["start", "b", "end"]]
+
+    describe "collectTwiceVisitResults" $ do
+        it "works for testInput"
+            $ shouldBe
+                (length
+                    $ collectTwiceVisitResults
+                    $ parseInput testInput
+                )
+                36
+        it "works for testInput2"
+            $ shouldBe
+                (length
+                    $ collectTwiceVisitResults
+                    $ parseInput testInput2
+                )
+                103
+        it "works for testInput3"
+            $ shouldBe
+                (length
+                    $ collectTwiceVisitResults
+                    $ parseInput testInput3
+                )
+                3509
+        it "works for input"
+            $ shouldBe
+                (length
+                    $ collectTwiceVisitResults
+                    $ parseInput input
+                )
+                0

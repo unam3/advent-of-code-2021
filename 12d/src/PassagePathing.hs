@@ -100,11 +100,14 @@ fuseTwiceVisitedSmallCave twinName paths = nub
 
 collectTwiceVisitResults :: Relations -> [Path]
 collectTwiceVisitResults relations =
-    {-
-        (fuseTwiceVisitedSmallCave "bsecond"
-            $ constructPathsWrapper 
-            $ modifyRelationsToVisitSmallCaveTwice (parseInput "start-A\nstart-b\nA-b\nb-d\nA-end\nb-end") "b"
-    -}
     let smallCavesNames = getSmallCavesNames relations
-        --foldl' (\  -> : acc) [] $ 
-    in undefined
+    in foldl'
+        (\ acc smallCaveName ->
+            let twiceVisitResults = fuseTwiceVisitedSmallCave
+                    (smallCaveName ++ "second")
+                    $ constructPathsWrapper
+                    $ modifyRelationsToVisitSmallCaveTwice relations smallCaveName
+            in union acc twiceVisitResults
+        )
+        []
+        smallCavesNames
