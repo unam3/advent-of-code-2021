@@ -28,4 +28,7 @@ How to represent input data as possible paths?
             + for b from testInput we could create b1 with same relations as b:
                 + duplicate relations with copiyng list of b-to-relations
                 + add b1 to relations where b can make connection
-        - use set difference (\\?) to filter out results of consequent constructPaths calls from foldl accumulator
+        + fuse b and b1 from constructed paths
+             + create proper test data
+             - can we do without nub?
+        - use union to filter out results of consequent constructPaths calls from foldl accumulator

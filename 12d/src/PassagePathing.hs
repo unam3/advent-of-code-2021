@@ -2,7 +2,7 @@ module PassagePathing where
 
 import Data.Bifunctor (second)
 import Data.Char (isUpper)
-import Data.List (elemIndex, foldl', union)
+import Data.List (elemIndex, foldl', nub, union)
 import Data.Map.Strict (Map, (!), empty, insert, insertWith, keys)
 import Data.Maybe (isJust)
 import Prelude hiding (map)
@@ -75,6 +75,7 @@ getSmallCavesNames = filter (\ key -> key /= "start" && areAllLower key) . keys
 modifyRelationsToVisitSmallCaveTwice :: Relations -> String -> Relations
 modifyRelationsToVisitSmallCaveTwice relations smallCaveName =
     let twinName = smallCaveName ++ "second"
+    -- is this map somehow relate to the required nub operation?
     in fmap 
         (\ keyToRelations ->
             if elem smallCaveName keyToRelations
@@ -86,8 +87,24 @@ modifyRelationsToVisitSmallCaveTwice relations smallCaveName =
             (relations ! smallCaveName)
             relations
 
+fuseTwiceVisitedSmallCave :: String -> [Path] -> [Path]
+fuseTwiceVisitedSmallCave twinName paths = nub
+    $ fmap (
+        fmap (\ caveName ->
+            if caveName == twinName
+            then take (length twinName - length "second") twinName
+            else caveName
+        )
+    )
+    paths
+
 collectTwiceVisitResults :: Relations -> [Path]
 collectTwiceVisitResults relations =
+    {-
+        (fuseTwiceVisitedSmallCave "bsecond"
+            $ constructPathsWrapper 
+            $ modifyRelationsToVisitSmallCaveTwice (parseInput "start-A\nstart-b\nA-b\nb-d\nA-end\nb-end") "b"
+    -}
     let smallCavesNames = getSmallCavesNames relations
         --foldl' (\  -> : acc) [] $ 
     in undefined
