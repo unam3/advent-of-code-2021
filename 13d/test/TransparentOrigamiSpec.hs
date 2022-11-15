@@ -1,5 +1,6 @@
 module TransparentOrigamiSpec where 
 
+import Data.Vector (empty)
 import Test.Hspec (Spec, describe, it, runIO, shouldBe)
 
 import TransparentOrigami
@@ -14,7 +15,7 @@ spec = do
         it "works"
             $ shouldBe
                 (parseInput testInput)
-                (pure "42")
+                (empty, [])
 
     describe "f" $ do
         it "works"
