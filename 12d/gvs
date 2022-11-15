@@ -24,6 +24,7 @@ set guifont=DejaVu\ Sans\ Mono\ 12
 set guiheadroom=0
 set guioptions=agLt
 set helplang=en
+set hlsearch
 set ignorecase
 set nomodeline
 set mouse=a
@@ -64,8 +65,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 30 + 22) / 45)
-exe '2resize ' . ((&lines * 11 + 22) / 45)
+exe '1resize ' . ((&lines * 28 + 22) / 45)
+exe '2resize ' . ((&lines * 13 + 22) / 45)
 argglobal
 balt ~/advent_of_code_21/11d/src/DumboOctopus.hs
 setlocal keymap=
@@ -191,15 +192,18 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-7,34fold
+7,25fold
+39,70fold
 7
 normal! zo
-let s:l = 56 - ((9 * winheight(0) + 15) / 30)
+39
+normal! zo
+let s:l = 113 - ((27 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 56
-normal! 048|
+keepjumps 113
+normal! 022|
 wincmd w
 argglobal
 if bufexists("notes") | buffer notes | else | edit notes | endif
@@ -327,15 +331,17 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 20 - ((10 * winheight(0) + 5) / 11)
+21,24fold
+let s:l = 35 - ((14 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 20
-normal! 05|
+keepjumps 35
+normal! 040|
 wincmd w
-exe '1resize ' . ((&lines * 30 + 22) / 45)
-exe '2resize ' . ((&lines * 11 + 22) / 45)
+2wincmd w
+exe '1resize ' . ((&lines * 28 + 22) / 45)
+exe '2resize ' . ((&lines * 13 + 22) / 45)
 tabnext
 edit test/PassagePathingSpec.hs
 set splitbelow splitright
@@ -349,8 +355,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 35 + 22) / 45)
-exe '2resize ' . ((&lines * 6 + 22) / 45)
+exe '1resize ' . ((&lines * 31 + 22) / 45)
+exe '2resize ' . ((&lines * 10 + 22) / 45)
 argglobal
 balt ~/advent_of_code_21/11d/test/DumboOctopusSpec.hs
 setlocal keymap=
@@ -476,12 +482,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 49 - ((28 * winheight(0) + 17) / 35)
+let s:l = 126 - ((29 * winheight(0) + 15) / 31)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 49
-normal! 019|
+keepjumps 126
+normal! 09|
 wincmd w
 argglobal
 if bufexists("notes") | buffer notes | else | edit notes | endif
@@ -609,15 +615,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 18 - ((4 * winheight(0) + 3) / 6)
+let s:l = 34 - ((8 * winheight(0) + 5) / 10)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 18
-normal! 060|
+keepjumps 34
+normal! 09|
 wincmd w
-exe '1resize ' . ((&lines * 35 + 22) / 45)
-exe '2resize ' . ((&lines * 6 + 22) / 45)
+exe '1resize ' . ((&lines * 31 + 22) / 45)
+exe '2resize ' . ((&lines * 10 + 22) / 45)
 tabnext
 edit testInput
 set splitbelow splitright
@@ -762,11 +768,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 5 - ((4 * winheight(0) + 6) / 13)
+let s:l = 1 - ((0 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 5
+keepjumps 1
 normal! 0
 wincmd w
 argglobal
@@ -895,11 +901,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 10 - ((9 * winheight(0) + 6) / 13)
+let s:l = 7 - ((6 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 10
+keepjumps 7
 normal! 05|
 wincmd w
 argglobal
@@ -1172,13 +1178,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 22 - ((21 * winheight(0) + 21) / 43)
+let s:l = 9 - ((8 * winheight(0) + 21) / 43)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 22
+keepjumps 9
 normal! 0
-tabnext 2
+tabnext 1
 set stal=1
 badd +155 ~/advent_of_code_21/10d/src/SyntaxScoring.hs
 badd +19 ~/advent_of_code_21/10d/stack.yaml
@@ -1212,7 +1218,13 @@ badd +14 input.txt
 badd +0 testInput
 badd +0 testInput2
 badd +0 testInput3
-badd +6 package.yaml
+badd +19 package.yaml
+badd +0 gvs
+badd +0 231
+badd +13 some
+badd +13 23
+badd +43 stack.yaml
+badd +1 lacka
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif

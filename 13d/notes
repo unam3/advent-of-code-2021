@@ -1,0 +1,3 @@
+- parse input into transparent paper and fold instructions representation
+- implement folding paper function: foldPaper
+How many dots are visible after completing just the first fold instruction on transparent paper?

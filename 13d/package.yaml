@@ -1,0 +1,27 @@
+name:                13d
+version:             0.1.0.0
+
+dependencies:
+# lts/19/33.yaml ghc-9.0.2
+- base == 4.15.1.0
+
+ghc-options:
+- -threaded
+- -O2
+- -Wall
+
+library:
+  source-dirs:      src
+
+tests:
+  13d-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -O2
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - 13d
+    - hspec    
