@@ -8,8 +8,9 @@
         x add "(", ")" and read them into [(Int, Int)], then fromList
         + replace comma with whitespace, run words, construct tuples; run fromList
     + parse fold instructions into FoldInstruction
-    - verify parsing by comparing visualition of TransparentPaper with puzzle's one
+    - verify parsing by comparing visualition of TransparentPaper with puzzle's one; add tests
         - implement visualizeTransparentPaper
+            - how to easily make a list x×y?
 
 - implement folding paper function: foldPaper
 How many dots are visible after completing just the first fold instruction on transparent paper?
