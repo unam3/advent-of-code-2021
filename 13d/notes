@@ -1,4 +1,4 @@
-• parse input into transparent paper and fold instructions representation
++ parse input into transparent paper and fold instructions representation
     + split input into 2 segments
         - write custom function
         + ~~2 filters~~ partition (isPrefixOf "fold")
@@ -8,9 +8,14 @@
         x add "(", ")" and read them into [(Int, Int)], then fromList
         + replace comma with whitespace, run words, construct tuples; run fromList
     + parse fold instructions into FoldInstruction
-    - verify parsing by comparing visualition of TransparentPaper with puzzle's one; add tests
-        - implement visualizeTransparentPaper
-            - how to easily make a list x×y?
+    + verify parsing by comparing visualition of TransparentPaper with puzzle's one; add tests
+        + implement visualizeTransparentPaper
+            + how to easily make a list x×y?
 
 - implement folding paper function: foldPaper
+    + remove folding line from the paper half
+    - fold 2 halves
+        ? preserve trailing blank lines
+        - invert lower paper half
+        - beware of edge cases where we have blank lines/rows on the edge of the paper: at least throw error
 How many dots are visible after completing just the first fold instruction on transparent paper?

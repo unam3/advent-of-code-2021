@@ -9,6 +9,7 @@ spec :: Spec
 spec = do
     testInput <- runIO $ readFile "testInput"
     visualizeReference <- runIO $ readFile "visualizeReference"
+    firstFoldVisualizedReference <- runIO $ readFile "firstFoldVisualizedReference"
 
     --input <- runIO $ readFile "input.txt"
 
@@ -24,8 +25,12 @@ spec = do
                 (visualizeTransparentPaper $ fst $ parseInput testInput)
                 visualizeReference
 
-    describe "f" $ do
+    describe "foldPaper" $ do
         it "works"
             $ shouldBe
-                42
-                42
+                (visualizeTransparentPaper
+                    $ (\ (transparentPaper, foldInstructions) -> foldPaper transparentPaper $ head foldInstructions
+                    )
+                    $ (parseInput testInput)
+                )
+                firstFoldVisualizedReference

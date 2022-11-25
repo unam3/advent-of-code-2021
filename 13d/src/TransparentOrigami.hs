@@ -2,7 +2,8 @@ module TransparentOrigami where
 
 
 import Data.List (isPrefixOf, foldl', partition, stripPrefix)
-import Data.Vector (Vector, elem, fromList, maximumBy)
+import Data.Vector (Vector, cons, elem, empty, fromList, maximumBy)
+import qualified Data.Vector as Vector
 import Prelude hiding (elem)
 
 type TransparentPaper = Vector (Int, Int)
@@ -75,3 +76,31 @@ parseInput input =
         transparentPaper = fromList dotCoordinatesList
         foldInstructions = fmap parseInstruction almostFoldInstructions
     in (transparentPaper, foldInstructions)
+
+transposeBottomHalf :: Int -> TransparentPaper -> (Int, Int) -> TransparentPaper
+transposeBottomHalf topY paperLowerHalf (x, y) =
+    let bottomY = snd $ maximumBy (\a b -> compare (snd a) (snd b)) paperLowerHalf
+    in undefined
+
+foldPaper :: TransparentPaper -> FoldInstruction -> TransparentPaper
+foldPaper paper (FoldUp yLineNumber) =
+    let (paperUpperHalf, almostLowerPaperHalf) = Vector.partition ((< yLineNumber) . snd) paper
+        -- remove folding line from the paper half
+        -- "dots will never appear exactly on a fold line."
+        paperLowerHalf = Vector.filter ((/= yLineNumber) . snd) almostLowerPaperHalf
+        lowerPaperHalfTopY = yLineNumber + 1
+        transposedLowerPaperHalf = Vector.foldl' (transposeBottomHalf lowerPaperHalfTopY) empty paperLowerHalf
+
+        upperPaperHalfBottomY = yLineNumber - 1
+        
+        foldedPaper = Vector.foldl'
+            (\ acc pointCoords ->
+                if elem pointCoords acc
+                then acc
+                else cons pointCoords acc
+            )
+            paperUpperHalf
+            paperLowerHalf
+    in undefined
+
+foldPaper paper (FoldLeft xLineNumber) = undefined
